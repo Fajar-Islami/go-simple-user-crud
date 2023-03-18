@@ -68,20 +68,28 @@ func (q *Queries) GetCountManyUser(ctx context.Context, email string) ([]int64, 
 
 const getManyUser = `-- name: GetManyUser :many
 SELECT id,email,first_name,last_name,avatar,created_at,updated_at,deleted_at FROM users
-WHERE email = ?
+WHERE email like ? or first_name like ? or last_name like ?
 ORDER BY id
 LIMIT ?
 OFFSET ?
 `
 
 type GetManyUserParams struct {
-	Email  string `json:"email"`
-	Limit  int32  `json:"limit"`
-	Offset int32  `json:"offset"`
+	Email     string `json:"email"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Limit     int32  `json:"limit"`
+	Offset    int32  `json:"offset"`
 }
 
 func (q *Queries) GetManyUser(ctx context.Context, arg GetManyUserParams) ([]User, error) {
-	rows, err := q.query(ctx, q.getManyUserStmt, getManyUser, arg.Email, arg.Limit, arg.Offset)
+	rows, err := q.query(ctx, q.getManyUserStmt, getManyUser,
+		arg.Email,
+		arg.FirstName,
+		arg.LastName,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}

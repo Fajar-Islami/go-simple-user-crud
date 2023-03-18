@@ -4,7 +4,7 @@ WHERE id = ? LIMIT 1;
 
 -- name: GetManyUser :many
 SELECT id,email,first_name,last_name,avatar,created_at,updated_at,deleted_at FROM users
-WHERE email = ?
+WHERE email like ? or first_name like ? or last_name like ?
 ORDER BY id
 LIMIT ?
 OFFSET ?;
