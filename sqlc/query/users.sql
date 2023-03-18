@@ -1,17 +1,17 @@
 -- name: GetUser :one
 SELECT id,email,first_name,last_name,avatar,created_at,updated_at,deleted_at FROM users
-WHERE id = ? LIMIT 1;
+WHERE id = ? and deleted_at is null LIMIT 1;
 
 -- name: GetManyUser :many
 SELECT id,email,first_name,last_name,avatar,created_at,updated_at,deleted_at FROM users
-WHERE email like ? or first_name like ? or last_name like ?
+WHERE (email like $1 or first_name like $1 or last_name like $1) and deleted_at is null
 ORDER BY id
 LIMIT ?
 OFFSET ?;
 
 -- name: GetCountManyUser :many
 SELECT count(*) FROM users
-WHERE email = ?;
+WHERE (email like $1 or first_name like $1 or last_name like $1) and deleted_at is null LIMIT 1;
 
 -- name: CreateAuthor :execlastid
 INSERT INTO users (
@@ -25,9 +25,9 @@ SET
     last_name = IF(@update_last_name = true, @last_name, last_name),
     avatar = IF(@update_avatar = true, @avatar, avatar),
     updated_at = now()
-WHERE id = @id;
+WHERE id = @id and deleted_at is null;
 
 -- name: SoftDeleteUser :exec
 UPDATE users 
 SET deleted_at = now()
-WHERE id = ?;
+WHERE id = ? and deleted_at is null;
