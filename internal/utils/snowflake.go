@@ -1,4 +1,4 @@
-package helper
+package utils
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 
 var node *snowflake.Node
 
-func init() {
+func InitSnowflake() {
 	snowNode, err := snowflake.NewNode(1)
 	if err != nil {
 		fmt.Println("err snowflake", err)

@@ -7,3 +7,12 @@ help: ## Show help command
 .PHONY: docs 
 docs: ## Generate Documents
 	swag init
+
+
+.PHONY: migrate
+migrate: ## Create Migrations file
+	@if [ -z "${name}" ]; then \
+		echo "Error: name is required \t example : make migrate name="name_file_migration";" \
+		exit 1; \
+	fi
+	migrate create -ext sql -dir migrations ':hammer: ${name}'
