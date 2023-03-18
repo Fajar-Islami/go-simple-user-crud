@@ -1,0 +1,89 @@
+basePath: /api/v1
+definitions:
+  main.ProductRequest:
+    properties:
+      desc:
+        example: simple desription
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: admin
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server Petstore server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Simple User CRUD
+  version: "1.0"
+paths:
+  /get-product:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: content type request
+        enum:
+        - application/json
+        in: header
+        name: Content-Type
+        required: true
+        type: string
+      - description: Payload body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.ProductRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.ProductRequest'
+            type: array
+        "400":
+          description: Bad Request
+      summary: API Get Product
+      tags:
+      - Product
+  /get-product-detail:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: content type request
+        enum:
+        - application/json
+        in: header
+        name: Content-Type
+        required: true
+        type: string
+      - description: Payload body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.ProductRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.ProductRequest'
+            type: array
+        "400":
+          description: Bad Request
+      summary: API Get Product
+      tags:
+      - Product
+swagger: "2.0"
