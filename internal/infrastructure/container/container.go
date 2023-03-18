@@ -8,9 +8,11 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/helper"
 	// "github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/mysql"
+	"github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/mysql"
 	redisclient "github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/redis"
 	"github.com/go-redis/redis/v8"
 	"github.com/rs/zerolog"
@@ -120,35 +122,53 @@ func LoggerInit(v *viper.Viper) (logger Logger) {
 	}
 }
 
-func InitContainer() *Container {
+// containters = apps,mysql,logger,redis
+func InitContainer(containters ...string) *Container {
+	newStrContainer := strings.Join(containters, ",")
 	var cont Container
 	errGroup, _ := errgroup.WithContext(context.Background())
 
 	errGroup.Go(func() (err error) {
-		apps := AppsInit(v)
-		cont.Apps = &apps
-		return
-	})
-
-	// errGroup.Go(func() (err error) {
-	// 	mysqldb := mysql.DatabaseInit(v)
-	// 	cont.Mysqldb = mysqldb
-	// 	return
-	// })
-
-	errGroup.Go(func() (err error) {
-		logger := LoggerInit(v)
-		cont.Logger = &logger
-		return
+		if strings.HasPrefix(newStrContainer, "apps") || len(containters) == 0 {
+			apps := AppsInit(v)
+			cont.Apps = &apps
+			return
+		}
+		return nil
 	})
 
 	errGroup.Go(func() (err error) {
-		redisClient := redisclient.NewRedisClient(v)
-		cont.Redis = redisClient
-		return
+		if strings.HasPrefix(newStrContainer, "mysql") || len(containters) == 0 {
+			mysqldb := mysql.DatabaseInit(v)
+			cont.Mysqldb = mysqldb
+			return
+		}
+		return nil
+	})
+
+	errGroup.Go(func() (err error) {
+		if strings.HasPrefix(newStrContainer, "log") || len(containters) == 0 {
+			logger := LoggerInit(v)
+			cont.Logger = &logger
+			return
+		}
+		return nil
+	})
+
+	errGroup.Go(func() (err error) {
+		if strings.HasPrefix(newStrContainer, "redis") || len(containters) == 0 {
+			redisClient := redisclient.NewRedisClient(v)
+			cont.Redis = redisClient
+			return
+		}
+		return nil
 	})
 
 	_ = errGroup.Wait()
 
 	return &cont
+}
+
+func GetEnv() *viper.Viper {
+	return v
 }

@@ -16,3 +16,11 @@ migrate: ## Create Migrations file
 		exit 1; \
 	fi
 	migrate create -ext sql -dir migrations ':hammer: ${name}'
+
+
+
+migrate-up: ## Up migration
+	go run cmd/migrate/main.go
+
+migrate-rollback: ## Up rollback
+	go run cmd/migrate/main.go -rollback

@@ -33,6 +33,7 @@ func DatabaseInit(v *viper.Viper) *sql.DB {
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", mysqlConfig.Username, mysqlConfig.Password, mysqlConfig.Host, mysqlConfig.Port, mysqlConfig.DbName)
+
 	db, err := sql.Open("mysql", dsn)
 	// if there is an error opening the connection, handle it
 	if err != nil {
