@@ -13,6 +13,7 @@ import (
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/helper"
 	// "github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/mysql"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/mysql"
+	redisclient "github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/redis"
 	"github.com/go-redis/redis/v8"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -154,14 +155,14 @@ func InitContainer(containters ...string) *Container {
 		return nil
 	})
 
-	// errGroup.Go(func() (err error) {
-	// 	if strings.HasPrefix(newStrContainer, "redis") || len(containters) == 0 {
-	// 		redisClient := redisclient.NewRedisClient(v)
-	// 		cont.Redis = redisClient
-	// 		return
-	// 	}
-	// 	return nil
-	// })
+	errGroup.Go(func() (err error) {
+		if strings.HasPrefix(newStrContainer, "redis") || len(containters) == 0 {
+			redisClient := redisclient.NewRedisClient(v)
+			cont.Redis = redisClient
+			return
+		}
+		return nil
+	})
 
 	_ = errGroup.Wait()
 

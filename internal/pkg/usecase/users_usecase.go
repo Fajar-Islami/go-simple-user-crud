@@ -12,8 +12,9 @@ import (
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/helper"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/pkg/dtos"
 	repositories "github.com/Fajar-Islami/go-simple-user-crud/internal/pkg/repositories/mysql"
+	"github.com/go-redis/redis/v8"
 
-	// "github.com/Fajar-Islami/go-simple-user-crud/internal/pkg/repository/redis_repo"
+	redisRepo "github.com/Fajar-Islami/go-simple-user-crud/internal/pkg/repositories/redis"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/utils"
 
 	"github.com/labstack/echo/v4"
@@ -29,12 +30,13 @@ type UsersUseCase interface {
 
 type usersUseCaseImpl struct {
 	userrepo repositories.Queries
-	// redis    redis_repo.RedisUsersRepository
+	redis    redisRepo.RedisUsersRepository
 }
 
-func NewUsersUseCase(userrepo repositories.Queries) UsersUseCase {
+func NewUsersUseCase(userrepo repositories.Queries, redis redisRepo.RedisUsersRepository) UsersUseCase {
 	return &usersUseCaseImpl{
 		userrepo: userrepo,
+		redis:    redis,
 	}
 
 }
@@ -122,10 +124,18 @@ func (usc *usersUseCaseImpl) GetUserByID(ctx echo.Context, userid int) (res dtos
 	log := ctx.Logger()
 
 	// Check data from redis
-	// data, errRedis := usc.redis.GetUsersCtx(contx, usersid, userid)
-	// if data != nil {
-	// 	return *data, nil
-	// }
+	data, errRedis := usc.redis.GetUsersCtx(contx, userid)
+	if errRedis != nil {
+		log.Error("Error when GetUsersCtx from redis: ", errRedis)
+		return res, &helper.ErrorStruct{
+			Code: http.StatusBadRequest,
+			Err:  errRedis,
+		}
+	}
+
+	if data != nil {
+		return *data, nil
+	}
 
 	// Check data from mysql
 	resRepo, err := usc.getUserByIDHelper(contx, userid)
@@ -146,8 +156,10 @@ func (usc *usersUseCaseImpl) GetUserByID(ctx echo.Context, userid int) (res dtos
 	}
 
 	// Set data to redis
-	// errRedis = usc.redis.SetUsersCtx(contx, &res, userid)
-	// log.Println("errRedis set redis", errRedis)
+	errRedis = usc.redis.SetUsersCtx(contx, &res)
+	if errRedis != nil || errRedis == redis.Nil {
+		log.Error("Error when SetUsersCtx from redis: ", err)
+	}
 
 	return res, nil
 }
@@ -240,8 +252,10 @@ func (usc *usersUseCaseImpl) UpdateUsersByID(ctx echo.Context, userid int, param
 	}
 
 	// // Delete key in redis
-	// errRedis := usc.redis.DeleteUsersCtx(ctx.Request().Context(), usersid, userid)
-	// log.Println("delete redis err : ", errRedis)
+	errRedis := usc.redis.DeleteUsersCtx(ctx.Request().Context(), userid)
+	if errRedis != nil {
+		log.Error("Error when DeleteUsersCtx from redis: ", err)
+	}
 
 	return "Succeed update user", nil
 }
@@ -267,9 +281,10 @@ func (usc *usersUseCaseImpl) DeleteUsersByID(ctx echo.Context, userid int) (res 
 		}
 	}
 
-	// // Delete key in redis
-	// errRedis := usc.redis.DeleteUsersCtx(ctx.Request().Context(), usersid, userid)
-	// log.Println("delete redis err : ", errRedis)
+	errRedis := usc.redis.DeleteUsersCtx(ctx.Request().Context(), userid)
+	if errRedis != nil {
+		log.Error("Error when DeleteUsersCtx from redis: ", err)
+	}
 
 	return "Succeed delete user", nil
 }

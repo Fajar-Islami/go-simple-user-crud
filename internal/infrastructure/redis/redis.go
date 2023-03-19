@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/helper"
+	redisRepo "github.com/Fajar-Islami/go-simple-user-crud/internal/pkg/repositories/redis"
 	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
 )
@@ -20,6 +21,7 @@ type RedisConf struct {
 	RedisMinIdleConns int    `mapstructure:"redis_MinIdleConns"`
 	RedisPoolSize     int    `mapstructure:"redis_PoolSize"`
 	RedisPoolTimeout  int    `mapstructure:"redis_PoolTimeout"`
+	RedisTTL          int    `mapstructure:"redis_ttl"`
 }
 
 const currentfilepath = "internal/infrastructure/redis/redis.go"
@@ -30,6 +32,7 @@ func NewRedisClient(v *viper.Viper) *redis.Client {
 	if err != nil {
 		helper.Logger(currentfilepath, helper.LoggerLevelPanic, fmt.Sprintf("failed init database redis : %s", err.Error()), nil)
 	}
+	redisRepo.RedisTTL = time.Duration(redisConfig.RedisTTL * int(time.Second))
 
 	ctx := context.Background()
 
