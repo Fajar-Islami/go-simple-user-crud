@@ -1,0 +1,33 @@
+name: CICD Simple User CRUD
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+
+      - name: Golang Build
+        run: make build
+      
+      - name: Build image
+        run: make dockerbuild
+
+      - name: Push image to ghcr
+        run: make push-image
+        
+      
+
+
+      
+      

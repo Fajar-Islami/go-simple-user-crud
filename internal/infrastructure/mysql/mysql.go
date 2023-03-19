@@ -54,7 +54,7 @@ func DatabaseInit(v *viper.Viper) *sql.DB {
 	if err := db.Ping(); err != nil {
 		helper.Logger(currentfilepath, helper.LoggerLevelError, "⇨ MySQL status is disconnected", err)
 	}
-	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "⇨ MySQL status is connected", nil)
+	helper.Logger(currentfilepath, helper.LoggerLevelInfo, fmt.Sprintf("⇨ MySQL status is connected to %s:%d database %s \n", mysqlConfig.Host, mysqlConfig.Port, mysqlConfig.DbName), nil)
 
 	return db
 }

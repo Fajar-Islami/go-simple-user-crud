@@ -84,11 +84,6 @@ func init() {
 		helper.Logger(currentfilepath, helper.LoggerLevelPanic, "", fmt.Errorf("failed read config : %s", err.Error()))
 	}
 
-	err = v.ReadInConfig()
-	if err != nil {
-		helper.Logger(currentfilepath, helper.LoggerLevelPanic, "", fmt.Errorf("failed init config : %s", err.Error()))
-	}
-
 	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed read configuration file", nil)
 }
 
