@@ -32,8 +32,8 @@ jobs:
 
       - name: 'Build Inventory Image'
         run: |
-          docker build . --tag ghcr.io/Fajar-Islami/store:latest
-          docker push ghcr.io/Fajar-Islami/store:latest 
+          docker build -t ghcr.io/Fajar-Islami/store .
+          docker push ghcr.io/Fajar-Islami/store 
 
 
   deploy:
