@@ -9,7 +9,7 @@
 [X] CRUD User
 [X] Get Detail Save and Get From redis
 [X] Connect to 3rd party
-[ ] Update swagger
+[ ] Fix swagger
 [ ] Deploy to fly.io
 [X] Add Github Action
 [ ] Auto Deploy with GA
