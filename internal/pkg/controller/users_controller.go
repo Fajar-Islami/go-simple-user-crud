@@ -32,8 +32,8 @@ func NewUsersController(usersusecase usecase.UsersUseCase) UsersController {
 }
 
 // @Tags Users
-// @Summary API Get Users
-// @Router / [get]
+// @Summary API Get Users Fetch
+// @Router /fetch [get]
 // @Param qs query dtos.FilterUsers true "Payload body [RAW]"
 // @Produces json
 // @Success 200 {object} helper.Response

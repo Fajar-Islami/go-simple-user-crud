@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"sync"
 
 	"math"
 	"net/http"
@@ -52,6 +53,7 @@ func (usc *usersUseCaseImpl) GetUsersFetch(ctx echo.Context, params dtos.FilterU
 		return res, err
 	}
 	dataRows := make([]dtos.ResDataUserSingle, 0)
+	var wg sync.WaitGroup
 
 	params.Page = (params.Page - 1) * params.Limit
 
@@ -78,7 +80,30 @@ func (usc *usersUseCaseImpl) GetUsersFetch(ctx echo.Context, params dtos.FilterU
 			LastName:  v.LastName,
 			Avatar:    v.Avatar,
 		})
+
+		wg.Add(1)
+		go func(v reqresAPI.ListUser, wg *sync.WaitGroup) {
+			defer wg.Done()
+			id := utils.IDGenerator()
+			fmt.Println("Add insert data user", v.Email)
+			contx := context.Background()
+			_, errRepo := usc.userrepo.CreateUser(contx, repositories.CreateUserParams{
+				ID:        id,
+				Email:     v.Email,
+				FirstName: v.FirstName,
+				LastName:  v.LastName,
+				Avatar: sql.NullString{
+					String: v.Avatar,
+					Valid:  true,
+				},
+			})
+			if errRepo != nil {
+				log.Error("Err when CreateUser :", errRepo)
+			}
+		}(v, &wg)
 	}
+
+	wg.Wait()
 
 	res.Data = dataRows
 	res.Page = resAPI.Page
@@ -99,7 +124,7 @@ func (usc *usersUseCaseImpl) GetAllUsers(ctx echo.Context, params dtos.FilterUse
 	cpPage := params.Page
 	params.Page = (params.Page - 1) * params.Limit
 
-	paramsSearch := fmt.Sprintf("%%%s", params.Search)
+	paramsSearch := fmt.Sprintf("%%%s%%", params.Search)
 	resRepo, errRepo := usc.userrepo.GetManyUser(ctx.Request().Context(), repositories.GetManyUserParams{
 		Email:     paramsSearch,
 		FirstName: paramsSearch,
@@ -233,7 +258,7 @@ func (usc *usersUseCaseImpl) CreateUsers(ctx echo.Context, params dtos.ReqCreate
 	})
 
 	if helper.MysqlCheckErrDuplicateEntry(errRepo) {
-		log.Error("Err when CreateUser Duplicate :", err)
+		log.Error("Err when CreateUser Duplicate :", errRepo)
 		return res, &helper.ErrorStruct{
 			Code: http.StatusBadRequest,
 			Err:  errors.New(errRepo.Error()),
@@ -241,7 +266,7 @@ func (usc *usersUseCaseImpl) CreateUsers(ctx echo.Context, params dtos.ReqCreate
 	}
 
 	if errRepo != nil {
-		log.Error("Err when CreateUser :", err)
+		log.Error("Err when CreateUser :", errRepo)
 		return res, &helper.ErrorStruct{
 			Code: http.StatusBadRequest,
 			Err:  errRepo,
