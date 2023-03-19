@@ -61,4 +61,7 @@ push-image:
 
 
 readenv:
-	export $(cat .env2 | xargs)
+	export $(cat .env | xargs)
+
+flysecret:
+	flyctl secrets set $(cat .env | xargs)
