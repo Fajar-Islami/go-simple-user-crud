@@ -1,7 +1,7 @@
 version: 1
 packages:
-  - path: "./internal/pkg/repository"
-    name: "simpleusercrud"
+  - path: "./internal/pkg/repositories/mysql"
+    name: "repositories"
     engine: "mysql"
     schema: "./sqlc/schema"
     queries: "./sqlc/query"

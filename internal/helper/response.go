@@ -6,7 +6,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// @TODO : make helper response
 type Response struct {
 	Status  bool        `json:"status"`
 	Message string      `json:"message"`

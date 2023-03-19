@@ -58,8 +58,3 @@ func DatabaseInit(v *viper.Viper) *sql.DB {
 
 	return db
 }
-
-func CloseDatabaseConnection(db *sql.DB) {
-	db.Close()
-
-}

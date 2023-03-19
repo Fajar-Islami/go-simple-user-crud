@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.17.2
 
-package simpleusercrud
+package repositories
 
 import (
 	"context"
@@ -24,8 +24,8 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
-	if q.createAuthorStmt, err = db.PrepareContext(ctx, createAuthor); err != nil {
-		return nil, fmt.Errorf("error preparing query CreateAuthor: %w", err)
+	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
 	}
 	if q.getCountManyUserStmt, err = db.PrepareContext(ctx, getCountManyUser); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCountManyUser: %w", err)
@@ -33,8 +33,8 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getManyUserStmt, err = db.PrepareContext(ctx, getManyUser); err != nil {
 		return nil, fmt.Errorf("error preparing query GetManyUser: %w", err)
 	}
-	if q.getUserStmt, err = db.PrepareContext(ctx, getUser); err != nil {
-		return nil, fmt.Errorf("error preparing query GetUser: %w", err)
+	if q.getUserByIDStmt, err = db.PrepareContext(ctx, getUserByID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetUserByID: %w", err)
 	}
 	if q.softDeleteUserStmt, err = db.PrepareContext(ctx, softDeleteUser); err != nil {
 		return nil, fmt.Errorf("error preparing query SoftDeleteUser: %w", err)
@@ -47,9 +47,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
-	if q.createAuthorStmt != nil {
-		if cerr := q.createAuthorStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing createAuthorStmt: %w", cerr)
+	if q.createUserStmt != nil {
+		if cerr := q.createUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
 		}
 	}
 	if q.getCountManyUserStmt != nil {
@@ -62,9 +62,9 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getManyUserStmt: %w", cerr)
 		}
 	}
-	if q.getUserStmt != nil {
-		if cerr := q.getUserStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getUserStmt: %w", cerr)
+	if q.getUserByIDStmt != nil {
+		if cerr := q.getUserByIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getUserByIDStmt: %w", cerr)
 		}
 	}
 	if q.softDeleteUserStmt != nil {
@@ -116,10 +116,10 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                     DBTX
 	tx                     *sql.Tx
-	createAuthorStmt       *sql.Stmt
+	createUserStmt         *sql.Stmt
 	getCountManyUserStmt   *sql.Stmt
 	getManyUserStmt        *sql.Stmt
-	getUserStmt            *sql.Stmt
+	getUserByIDStmt        *sql.Stmt
 	softDeleteUserStmt     *sql.Stmt
 	updatePartialUsersStmt *sql.Stmt
 }
@@ -128,10 +128,10 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                     tx,
 		tx:                     tx,
-		createAuthorStmt:       q.createAuthorStmt,
+		createUserStmt:         q.createUserStmt,
 		getCountManyUserStmt:   q.getCountManyUserStmt,
 		getManyUserStmt:        q.getManyUserStmt,
-		getUserStmt:            q.getUserStmt,
+		getUserByIDStmt:        q.getUserByIDStmt,
 		softDeleteUserStmt:     q.softDeleteUserStmt,
 		updatePartialUsersStmt: q.updatePartialUsersStmt,
 	}

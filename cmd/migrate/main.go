@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/container"
-	mysqlclient "github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/mysql"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/mysql"
@@ -24,7 +23,7 @@ func main() {
 		log.Println("err", err)
 	}
 
-	defer mysqlclient.CloseDatabaseConnection(cont.Mysqldb)
+	defer driver.Close()
 
 	m, err := migrate.NewWithDatabaseInstance("file://migrations", "mysql", driver)
 	if err != nil {

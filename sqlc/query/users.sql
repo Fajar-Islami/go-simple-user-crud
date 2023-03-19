@@ -1,19 +1,19 @@
--- name: GetUser :one
-SELECT id,email,first_name,last_name,avatar,created_at,updated_at,deleted_at FROM users
+-- name: GetUserByID :one
+SELECT id,email,first_name,last_name,avatar,created_at,updated_at FROM users
 WHERE id = ? and deleted_at is null LIMIT 1;
 
 -- name: GetManyUser :many
-SELECT id,email,first_name,last_name,avatar,created_at,updated_at,deleted_at FROM users
-WHERE (email like $1 or first_name like $1 or last_name like $1) and deleted_at is null
+SELECT id,email,first_name,last_name,avatar,created_at,updated_at FROM users
+WHERE deleted_at is null and (email like ? or first_name like ? or last_name like ?)
 ORDER BY id
 LIMIT ?
 OFFSET ?;
 
--- name: GetCountManyUser :many
+-- name: GetCountManyUser :one
 SELECT count(*) FROM users
-WHERE (email like $1 or first_name like $1 or last_name like $1) and deleted_at is null LIMIT 1;
+WHERE deleted_at is null and (email like ? or first_name like ? or last_name like ?) LIMIT 1;
 
--- name: CreateAuthor :execlastid
+-- name: CreateUser :execlastid
 INSERT INTO users (
   id,email,first_name,last_name,avatar
 ) VALUES ( ?,?,?,?,? );
@@ -21,11 +21,12 @@ INSERT INTO users (
 -- name: UpdatePartialUsers :execlastid
 UPDATE users 
 SET 
-    first_name = IF(@update_first_name = true, @first_name, first_name),
-    last_name = IF(@update_last_name = true, @last_name, last_name),
-    avatar = IF(@update_avatar = true, @avatar, avatar),
+    email = COALESCE(sqlc.arg(email), email),
+    first_name = COALESCE(sqlc.arg(first_name), first_name),
+    last_name = COALESCE(sqlc.arg(last_name), last_name),
+    avatar = COALESCE(sqlc.arg(avatar), avatar),
     updated_at = now()
-WHERE id = @id and deleted_at is null;
+WHERE id = ? and deleted_at is null;
 
 -- name: SoftDeleteUser :exec
 UPDATE users 

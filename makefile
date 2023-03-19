@@ -6,7 +6,7 @@ help: ## Show help command
 
 .PHONY: docs 
 docs: ## Generate Documents
-	swag init
+	swag init -g ./cmd/main.go --output docs
 
 
 .PHONY: migrate
