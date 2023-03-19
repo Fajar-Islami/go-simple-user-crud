@@ -65,3 +65,6 @@ readenv:
 
 flysecret:
 	flyctl secrets set $(cat .env | xargs)
+
+flylist:
+	flyctl secrets list
