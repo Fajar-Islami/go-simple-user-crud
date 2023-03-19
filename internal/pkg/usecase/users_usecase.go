@@ -15,12 +15,14 @@ import (
 	"github.com/go-redis/redis/v8"
 
 	redisRepo "github.com/Fajar-Islami/go-simple-user-crud/internal/pkg/repositories/redis"
+	reqresAPI "github.com/Fajar-Islami/go-simple-user-crud/internal/pkg/repositories/rest/reqres"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/utils"
 
 	"github.com/labstack/echo/v4"
 )
 
 type UsersUseCase interface {
+	GetUsersFetch(ctx echo.Context, params dtos.FilterUsers) (res dtos.ResDataUsers, err *helper.ErrorStruct)
 	GetAllUsers(ctx echo.Context, params dtos.FilterUsers) (res dtos.ResDataUsers, err *helper.ErrorStruct)
 	GetUserByID(ctx echo.Context, userid int) (res dtos.ResDataUserSingle, err *helper.ErrorStruct)
 	CreateUsers(ctx echo.Context, params dtos.ReqCreateDataUser) (res int, err *helper.ErrorStruct)
@@ -29,16 +31,61 @@ type UsersUseCase interface {
 }
 
 type usersUseCaseImpl struct {
-	userrepo repositories.Queries
-	redis    redisRepo.RedisUsersRepository
+	userrepo  repositories.Queries
+	redis     redisRepo.RedisUsersRepository
+	reqresAPI reqresAPI.ReqResAPI
 }
 
-func NewUsersUseCase(userrepo repositories.Queries, redis redisRepo.RedisUsersRepository) UsersUseCase {
+func NewUsersUseCase(userrepo repositories.Queries, redis redisRepo.RedisUsersRepository, reqresAPI reqresAPI.ReqResAPI) UsersUseCase {
 	return &usersUseCaseImpl{
-		userrepo: userrepo,
-		redis:    redis,
+		userrepo:  userrepo,
+		redis:     redis,
+		reqresAPI: reqresAPI,
 	}
 
+}
+
+func (usc *usersUseCaseImpl) GetUsersFetch(ctx echo.Context, params dtos.FilterUsers) (res dtos.ResDataUsers, err *helper.ErrorStruct) {
+	log := ctx.Logger()
+	err = usecaseValidation(ctx, params)
+	if err != nil {
+		return res, err
+	}
+	dataRows := make([]dtos.ResDataUserSingle, 0)
+
+	params.Page = (params.Page - 1) * params.Limit
+
+	resAPI, errAPI := usc.reqresAPI.GetListUser(reqresAPI.ReqListUser{
+		PerPage: params.Limit,
+		Page:    params.Page,
+	})
+
+	if errAPI != nil {
+		log.Error("Err when get GetUsersFetch :", err)
+		return res, &helper.ErrorStruct{
+			Code: http.StatusBadRequest,
+			Err:  errAPI,
+		}
+	}
+
+	for _, v := range resAPI.Data {
+		dataRows = append(dataRows, dtos.ResDataUserSingle{
+			DtosModel: dtos.DtosModel{
+				ID: int64(v.ID),
+			},
+			Email:     v.Email,
+			FirstName: v.FirstName,
+			LastName:  v.LastName,
+			Avatar:    v.Avatar,
+		})
+	}
+
+	res.Data = dataRows
+	res.Page = resAPI.Page
+	res.Rows = resAPI.PerPage
+	res.TotalRows = resAPI.Total
+	res.TotalPages = resAPI.TotalPages
+	return res, nil
 }
 
 func (usc *usersUseCaseImpl) GetAllUsers(ctx echo.Context, params dtos.FilterUsers) (res dtos.ResDataUsers, err *helper.ErrorStruct) {

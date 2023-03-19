@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/helper"
-	// "github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/mysql"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/mysql"
 	redisclient "github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/redis"
 	"github.com/go-redis/redis/v8"
@@ -29,10 +28,11 @@ const currentfilepath = "internal/infrastructure/container/container.go"
 
 type (
 	Container struct {
-		Mysqldb *sql.DB
-		Apps    *Apps
-		Logger  *Logger
-		Redis   *redis.Client
+		Mysqldb   *sql.DB
+		Apps      *Apps
+		Logger    *Logger
+		Redis     *redis.Client
+		ReqResAPI *ReqResAPI
 	}
 
 	Logger struct {
@@ -48,6 +48,12 @@ type (
 		Address   string `mapstructure:"address"`
 		HttpPort  int    `mapstructure:"httpport"`
 		SecretJwt string `mapstructure:"secretJwt"`
+	}
+
+	ReqResAPI struct {
+		URL       string `mapstructure:"reqres_uri"`
+		TimeOut   int    `mapstructure:"reqres_timeout"`
+		Debugging bool   `mapstructure:"reqres_debugging"`
 	}
 )
 
@@ -122,6 +128,15 @@ func LoggerInit(v *viper.Viper) (logger Logger) {
 	}
 }
 
+func ReqResAPIInit(v *viper.Viper) (reqresapi ReqResAPI) {
+	err := v.Unmarshal(&reqresapi)
+	if err != nil {
+		helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when unmarshal configuration file : ", err.Error()))
+	}
+	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed when unmarshal configuration file", nil)
+	return
+}
+
 // containters = apps,mysql,logger,redis
 func InitContainer(containters ...string) *Container {
 	newStrContainer := strings.Join(containters, ",")
@@ -129,7 +144,7 @@ func InitContainer(containters ...string) *Container {
 	errGroup, _ := errgroup.WithContext(context.Background())
 
 	errGroup.Go(func() (err error) {
-		if strings.HasPrefix(newStrContainer, "apps") || len(containters) == 0 {
+		if strings.Contains(newStrContainer, "apps") || len(containters) == 0 {
 			apps := AppsInit(v)
 			cont.Apps = &apps
 			return
@@ -138,7 +153,7 @@ func InitContainer(containters ...string) *Container {
 	})
 
 	errGroup.Go(func() (err error) {
-		if strings.HasPrefix(newStrContainer, "mysql") || len(containters) == 0 {
+		if strings.Contains(newStrContainer, "mysql") || len(containters) == 0 {
 			mysqldb := mysql.DatabaseInit(v)
 			cont.Mysqldb = mysqldb
 			return
@@ -147,7 +162,7 @@ func InitContainer(containters ...string) *Container {
 	})
 
 	errGroup.Go(func() (err error) {
-		if strings.HasPrefix(newStrContainer, "log") || len(containters) == 0 {
+		if strings.Contains(newStrContainer, "log") || len(containters) == 0 {
 			logger := LoggerInit(v)
 			cont.Logger = &logger
 			return
@@ -156,9 +171,18 @@ func InitContainer(containters ...string) *Container {
 	})
 
 	errGroup.Go(func() (err error) {
-		if strings.HasPrefix(newStrContainer, "redis") || len(containters) == 0 {
+		if strings.Contains(newStrContainer, "redis") || len(containters) == 0 {
 			redisClient := redisclient.NewRedisClient(v)
 			cont.Redis = redisClient
+			return
+		}
+		return nil
+	})
+
+	errGroup.Go(func() (err error) {
+		if strings.Contains(newStrContainer, "reqresapi") || len(containters) == 0 {
+			reqresapi := ReqResAPIInit(v)
+			cont.ReqResAPI = &reqresapi
 			return
 		}
 		return nil

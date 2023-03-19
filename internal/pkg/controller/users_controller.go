@@ -13,6 +13,7 @@ import (
 )
 
 type UsersController interface {
+	GetUsersFetch(ctx echo.Context) error
 	GetAllUsers(ctx echo.Context) error
 	GetUserByID(ctx echo.Context) error
 	CreateUsers(ctx echo.Context) error
@@ -28,6 +29,30 @@ func NewUsersController(usersusecase usecase.UsersUseCase) UsersController {
 	return &usersControllerImpl{
 		usersusecase: usersusecase,
 	}
+}
+
+// @Tags Users
+// @Summary API Get Users
+// @Router / [get]
+// @Param qs query dtos.FilterUsers true "Payload body [RAW]"
+// @Produces json
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Failure 404 {object} helper.Response
+// @Failure 500 {object} helper.Response
+func (ohco *usersControllerImpl) GetUsersFetch(ctx echo.Context) error {
+	filter := new(dtos.FilterUsers)
+	if err := ctx.Bind(filter); err != nil {
+		log.Println(err)
+		return helper.BuildResponse(ctx, false, helper.FAILEDGETDATA, err.Error(), nil, http.StatusBadRequest)
+	}
+
+	res, err := ohco.usersusecase.GetUsersFetch(ctx, *filter)
+	if err != nil {
+		return helper.BuildResponse(ctx, false, helper.FAILEDGETDATA, err.Err.Error(), nil, err.Code)
+	}
+
+	return helper.BuildResponse(ctx, true, helper.SUCCEEDGETDATA, "", res, http.StatusOK)
 }
 
 // @Tags Users
