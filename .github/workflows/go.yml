@@ -30,9 +30,23 @@ jobs:
           username: ${{github.actor}}
           password: ${{secrets.TOKEN}}
 
-      - name: 'Build Inventory Image'
-        run: |
-          make push-image
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/fajar-islami/go-simple-user-crud
+          flavor: |
+            latest=false
+          tags: |
+            type=golang
+            
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
 
   deploy:

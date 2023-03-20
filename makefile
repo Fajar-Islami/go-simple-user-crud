@@ -55,8 +55,7 @@ dc-check:
 	 docker compose -f docker-compose-app.yaml config
 	 
 
-push-image:
-	docker build -t ${registry}/${username}/${image}:${tags} .
+push-image: dockerbuild
 	docker push ${registry}/${username}/${image}:${tags}
 
 
