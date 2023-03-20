@@ -10,9 +10,15 @@ help: ## Show help command
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 
+
+.PHONY: check-swag
+check-swag: ## Check if swag command already exist
+	command -v swag >/dev/null 2>&1 || { go install github.com/swaggo/swag/cmd/swag@v1.8.10; }
+
+
 .PHONY: docs 
 docs: ## Generate Documents
-	swag init -g internal/delivery/http/main.go --output docs/
+	swag init -g ./internal/delivery/http/main.go --output ./docs/
 
 
 .PHONY: migrate

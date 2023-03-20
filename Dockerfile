@@ -5,6 +5,7 @@ WORKDIR /app
 COPY . .
 
 # Make docs swagger
+RUN make check-swag
 RUN make docs
 
 # Build the binary
