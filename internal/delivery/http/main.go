@@ -39,6 +39,8 @@ func HTTPRouteInit(cont *container.Container) {
 	port := fmt.Sprintf("%s:%d", cont.Apps.Host, cont.Apps.HttpPort)
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s/api/v1", port)
 	utils.InitSnowflake()
+
+	fmt.Printf("%#v \n\n", cont.Apps)
 	fmt.Println("app running on port : ", port)
 	api := e.Group("/api/v1") // /api
 	api.Any("", HealthCheck)
