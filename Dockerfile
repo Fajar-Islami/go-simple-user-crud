@@ -1,12 +1,12 @@
 # Start by building the application.
-FROM golang:1.19.2 as build
+FROM golang:alpine3.17 as build
 LABEL stage=dockerbuilder
 WORKDIR /app
 COPY . .
 
 # Make docs swagger
-RUN make check-swag
-RUN make docs
+RUN command -v swag >/dev/null 2>&1 || { go install github.com/swaggo/swag/cmd/swag@v1.8.10; }
+RUN swag init -g ./internal/delivery/http/main.go --output ./docs/
 
 # Build the binary
 RUN go build -o apps cmd/main.go
