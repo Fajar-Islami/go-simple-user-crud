@@ -43,6 +43,9 @@ build:
 run:
 	./app
 
+runlocal:
+	go run cmd/main.go
+
 dockerbuild:
 	docker build --rm -t ${registry}/${username}/${image}:${tags} .
 	docker image prune --filter label=stage=dockerbuilder -f

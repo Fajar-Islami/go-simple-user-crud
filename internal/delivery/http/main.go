@@ -2,6 +2,7 @@ package http
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/Fajar-Islami/go-simple-user-crud/docs"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/delivery/http/handler"
@@ -39,7 +40,15 @@ func HTTPRouteInit(cont *container.Container) {
 	utils.InitSnowflake()
 
 	api := e.Group("/api/v1") // /api
+	api.Any("", HealthCheck)
+	api.Any("/health", HealthCheck)
 	handler.AuthHandler(api, cont, AuthMiddleware)
 
 	e.Logger.Fatal(e.Start(port))
+}
+
+func HealthCheck(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": "Server is up and running",
+	})
 }
