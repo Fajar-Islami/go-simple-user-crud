@@ -72,9 +72,6 @@ func (usc *usersUseCaseImpl) GetUsersFetch(ctx echo.Context, params dtos.FilterU
 
 	for _, v := range resAPI.Data {
 		dataRows = append(dataRows, dtos.ResDataUserSingle{
-			DtosModel: dtos.DtosModel{
-				ID: int64(v.ID),
-			},
 			Email:     v.Email,
 			FirstName: v.FirstName,
 			LastName:  v.LastName,
@@ -166,9 +163,9 @@ func (usc *usersUseCaseImpl) GetAllUsers(ctx echo.Context, params dtos.FilterUse
 	for _, v := range resRepo {
 		dataRows = append(dataRows, dtos.ResDataUserSingle{
 			DtosModel: dtos.DtosModel{
-				ID:        v.ID,
-				CreatedAt: v.CreatedAt.Time,
-				UpdatedAt: v.UpdatedAt.Time,
+				ID:        &v.ID,
+				CreatedAt: &v.CreatedAt.Time,
+				UpdatedAt: &v.UpdatedAt.Time,
 			},
 			Email:     v.Email,
 			FirstName: v.FirstName,
@@ -217,9 +214,9 @@ func (usc *usersUseCaseImpl) GetUserByID(ctx echo.Context, userid int) (res dtos
 	}
 	res = dtos.ResDataUserSingle{
 		DtosModel: dtos.DtosModel{
-			ID:        resRepo.ID,
-			CreatedAt: resRepo.CreatedAt.Time,
-			UpdatedAt: resRepo.UpdatedAt.Time,
+			ID:        &resRepo.ID,
+			CreatedAt: &resRepo.CreatedAt.Time,
+			UpdatedAt: &resRepo.UpdatedAt.Time,
 		},
 		Email:     resRepo.Email,
 		FirstName: resRepo.FirstName,

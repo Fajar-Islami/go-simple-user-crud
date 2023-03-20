@@ -64,7 +64,7 @@ func (roi *redisUsersRepoImpl) SetUsersCtx(ctx context.Context, data *dtos.ResDa
 	}
 
 	log.Info().Msg("set key")
-	realKey := keyUsersGenerator(int(data.ID))
+	realKey := keyUsersGenerator(int(*data.ID))
 	if err = roi.redisClient.Set(ctx, realKey, newBytes, RedisTTL).Err(); err != nil {
 		return errors.Wrap(err, "usersRedisRepo.SetUsersCtx.redisClient.set")
 	}
