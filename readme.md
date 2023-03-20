@@ -18,3 +18,4 @@
 [ ] Migrate from redis to groupcache   
 [X] Migrate from viper to godotenv
 [X] API HealthCheck   
+[ ] Fix swagger port, change host to different with normal host

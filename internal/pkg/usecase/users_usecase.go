@@ -55,8 +55,6 @@ func (usc *usersUseCaseImpl) GetUsersFetch(ctx echo.Context, params dtos.FilterU
 	dataRows := make([]dtos.ResDataUserSingle, 0)
 	var wg sync.WaitGroup
 
-	params.Page = (params.Page - 1) * params.Limit
-
 	resAPI, errAPI := usc.reqresAPI.GetListUser(reqresAPI.ReqListUser{
 		PerPage: params.Limit,
 		Page:    params.Page,
