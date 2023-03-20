@@ -12,7 +12,7 @@ help: ## Show help command
 
 .PHONY: docs 
 docs: ## Generate Documents
-	swag init -g ./cmd/main.go --output docs
+	swag init -g internal/delivery/http/main.go --output docs/
 
 
 .PHONY: migrate

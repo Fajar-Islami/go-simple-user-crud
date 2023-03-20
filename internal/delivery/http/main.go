@@ -9,6 +9,7 @@ import (
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 // @title Simple User CRUD
@@ -26,15 +27,15 @@ import (
 // @BasePath /
 func HTTPRouteInit(cont *container.Container) {
 	e := echo.New()
-	// e.GET("/swagger/*", echoSwagger.WrapHandler)
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.Validator = NewValidator()
 
-	e.Use(middleware.AddTrailingSlash())
 	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
 	e.Use(LoggerMiddleware(&cont.Logger.Log))
 
 	port := fmt.Sprintf("%s:%d", cont.Apps.Host, cont.Apps.HttpPort)
-	docs.SwaggerInfo.Host = port
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s/api/v1", port)
 	utils.InitSnowflake()
 
 	api := e.Group("/api/v1") // /api

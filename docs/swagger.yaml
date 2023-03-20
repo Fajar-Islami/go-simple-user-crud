@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   dtos.ReqCreateDataUser:
     properties:
@@ -39,16 +40,28 @@ definitions:
         type: boolean
     type: object
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server Petstore server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Simple User CRUD
+  version: "1.0"
 paths:
-  /:
+  /user:
     get:
       parameters:
       - in: query
         name: limit
+        required: true
         type: integer
       - in: query
         name: page
+        required: true
         type: integer
       - in: query
         name: search
@@ -110,7 +123,7 @@ paths:
       summary: API Get Users
       tags:
       - Users
-  /{userid}:
+  /user/{userid}:
     delete:
       parameters:
       - description: User ID
@@ -203,6 +216,40 @@ paths:
           schema:
             $ref: '#/definitions/helper.Response'
       summary: API Get Users
+      tags:
+      - Users
+  /user/fetch:
+    get:
+      parameters:
+      - in: query
+        name: limit
+        required: true
+        type: integer
+      - in: query
+        name: page
+        required: true
+        type: integer
+      - in: query
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: API Get Users Fetch
       tags:
       - Users
 swagger: "2.0"

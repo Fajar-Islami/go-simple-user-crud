@@ -33,7 +33,7 @@ func NewUsersController(usersusecase usecase.UsersUseCase) UsersController {
 
 // @Tags Users
 // @Summary API Get Users Fetch
-// @Router /fetch [get]
+// @Router /user/fetch [get]
 // @Param qs query dtos.FilterUsers true "Payload body [RAW]"
 // @Produces json
 // @Success 200 {object} helper.Response
@@ -57,7 +57,7 @@ func (ohco *usersControllerImpl) GetUsersFetch(ctx echo.Context) error {
 
 // @Tags Users
 // @Summary API Get Users
-// @Router / [get]
+// @Router /user [get]
 // @Param qs query dtos.FilterUsers true "Payload body [RAW]"
 // @Produces json
 // @Success 200 {object} helper.Response
@@ -81,7 +81,7 @@ func (ohco *usersControllerImpl) GetAllUsers(ctx echo.Context) error {
 
 // @Tags Users
 // @Summary API Get Users
-// @Router /{userid} [get]
+// @Router /user/{userid} [get]
 // @Param   id   path  int  true  "User ID"
 // @Produces json
 // @Success 200 {object} helper.Response
@@ -105,7 +105,7 @@ func (ohco *usersControllerImpl) GetUserByID(ctx echo.Context) error {
 
 // @Tags Users
 // @Summary API Get Users
-// @Router / [POST]
+// @Router /user [POST]
 // @Param Content-Type header string true "content type request" Enums(application/json)
 // @Param request body dtos.ReqCreateDataUser true "Payload body [RAW]"
 // @Accept json
@@ -131,7 +131,7 @@ func (ohco *usersControllerImpl) CreateUsers(ctx echo.Context) error {
 
 // @Tags Users
 // @Summary API Get Users
-// @Router /{userid} [put]
+// @Router /user/{userid} [put]
 // @Param   id   path  int  true  "User ID"
 // @Param Content-Type header string true "content type request" Enums(application/json)
 // @Param request body dtos.ReqUpdateDataUser true "Payload body [RAW]"
@@ -163,7 +163,7 @@ func (ohco *usersControllerImpl) UpdateUsersByID(ctx echo.Context) error {
 
 // @Tags Users
 // @Summary API Delete Users
-// @Router /{userid} [delete]
+// @Router /user/{userid} [delete]
 // @Param   id   path  int  true  "User ID"
 // @Produces json
 // @Success 200 {object} helper.Response
