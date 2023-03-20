@@ -4,6 +4,9 @@ LABEL stage=dockerbuilder
 WORKDIR /app
 COPY . .
 
+# Make docs swagger
+RUN make docs
+
 # Build the binary
 RUN go build -o apps cmd/main.go
 
@@ -13,8 +16,8 @@ FROM alpine:3.9
 # Copy bin file
 WORKDIR /app
 COPY --from=build /app/apps /app/apps
-COPY docs .
-RUN mkdir /logs
+COPY --from=build /app/docs /app/docs
+RUN mkdir /app/logs
 
 EXPOSE 8080
-ENTRYPOINT ["/app/app"]
+ENTRYPOINT ["/app/apps"]
