@@ -6,23 +6,21 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
-	"regexp"
 	"strings"
 
+	"github.com/joho/godotenv"
+
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/helper"
-	"github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/mysql"
+	"github.com/Fajar-Islami/go-simple-user-crud/internal/utils"
+
+	mysqlclient "github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/mysql"
 	redisclient "github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/redis"
 	"github.com/go-redis/redis/v8"
+	"github.com/mashingan/smapping"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/rs/zerolog/pkgerrors"
 	"golang.org/x/sync/errgroup"
-
-	"github.com/spf13/viper"
 )
-
-var v *viper.Viper
 
 const currentfilepath = "internal/infrastructure/container/container.go"
 
@@ -37,105 +35,98 @@ type (
 
 	Logger struct {
 		Log     zerolog.Logger
-		Path    string `mapstructure:"log_path"`
-		LogFile string `mapstructure:"log_file"`
+		Path    string `env:"log_path"`
+		LogFile string `env:"log_file"`
 	}
 
 	Apps struct {
-		Name      string `mapstructure:"appName"`
-		Host      string `mapstructure:"host"`
-		Version   string `mapstructure:"version"`
-		Address   string `mapstructure:"address"`
-		HttpPort  int    `mapstructure:"httpport"`
-		SecretJwt string `mapstructure:"secretJwt"`
+		Name      string `env:"apps_appName"`
+		Host      string `env:"apps_host"`
+		Version   string `env:"apps_version"`
+		Address   string `env:"apps_address"`
+		HttpPort  int    `env:"apps_httpport"`
+		SecretJwt string `env:"apps_secretJwt"`
 	}
 
 	ReqResAPI struct {
-		URL       string `mapstructure:"reqres_uri"`
-		TimeOut   int    `mapstructure:"reqres_timeout"`
-		Debugging bool   `mapstructure:"reqres_debugging"`
+		URL       string `env:"reqres_uri"`
+		TimeOut   int    `env:"reqres_timeout"`
+		Debugging bool   `env:"reqres_debugging"`
 	}
 )
 
-func loadEnv() {
-	projectDirName := "go-simple-user-crud"
-	projectName := regexp.MustCompile(`^(.*` + projectDirName + `)`)
-	currentWorkDirectory, _ := os.Getwd()
-	rootPath := projectName.Find([]byte(currentWorkDirectory))
-
-	v.SetConfigFile(string(rootPath) + `/.env`)
-}
+var mapsEnv = smapping.Mapped{}
 
 func init() {
-	v = viper.New()
-
-	v.AutomaticEnv()
-	loadEnv()
+	err := godotenv.Load(fmt.Sprintf("%s/.env", helper.ProjectRootPath))
+	if err != nil {
+		helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when loadenv : ", err.Error()))
+	}
 
 	for _, v := range os.Environ() {
-		if strings.HasPrefix(v, "mysql_") || strings.HasPrefix(v, "redis_") || strings.HasPrefix(v, "log_") || strings.HasPrefix(v, "reqres_") {
-			fmt.Println("env : ", v)
+		if strings.HasPrefix(v, "apps_") || strings.HasPrefix(v, "mysql_") || strings.HasPrefix(v, "redis_") || strings.HasPrefix(v, "log_") || strings.HasPrefix(v, "reqres_") {
+			strs := strings.Split(v, "=")
+			mapsEnv[strs[0]] = strs[1]
 		}
 	}
 
-	path, err := os.Executable()
-	if err != nil {
-		helper.Logger(currentfilepath, helper.LoggerLevelPanic, "", fmt.Errorf("os.Executable panic : %s", err.Error()))
-	}
-
-	dir := filepath.Dir(path)
-	v.AddConfigPath(dir)
-
-	if err := v.ReadInConfig(); err != nil {
-		helper.Logger(currentfilepath, helper.LoggerLevelPanic, "", fmt.Errorf("failed read config : %s", err.Error()))
-	}
-
-	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed read configuration file", nil)
+	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed read environment variable", nil)
 }
 
-func AppsInit(v *viper.Viper) (apps Apps) {
-	err := v.Unmarshal(&apps)
-	if err != nil {
-		helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when unmarshal configuration file : ", err.Error()))
+func AppsInit() Apps {
+	var appsConf = Apps{
+		Name:      utils.EnvString("apps_appName"),
+		Host:      utils.EnvString("apps_host"),
+		Version:   utils.EnvString("apps_version"),
+		Address:   utils.EnvString("apps_address"),
+		HttpPort:  utils.EnvInt("apps_httpport"),
+		SecretJwt: utils.EnvString("apps_secretJwt"),
 	}
-	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed when unmarshal configuration file", nil)
-	return
+
+	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed read appsConf", nil)
+	return appsConf
 }
 
-func LoggerInit(v *viper.Viper) (logger Logger) {
-	err := v.Unmarshal(&logger)
-	if err != nil {
-		helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when unmarshal configuration file : ", err.Error()))
+func LoggerInit() Logger {
+	var loggerConf = Logger{
+		Path:    utils.EnvString("log_path"),
+		LogFile: utils.EnvString("log_file"),
 	}
+
+	err := smapping.FillStructByTags(&loggerConf, mapsEnv, "env")
+	if err != nil {
+		helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when read loggerConf : ", err.Error()))
+	}
+	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed when read loggerConf", nil)
 
 	var stdout io.Writer = os.Stdout
-	// var multi zerolog.LevelWriter = os.Stdout
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 
-	if logger.LogFile == "ON" {
-		path := fmt.Sprintf("%s/logs/request.log", helper.ProjectRootPath)
+	if loggerConf.LogFile == "ON" {
+		path := fmt.Sprintf("%s%s", helper.ProjectRootPath, loggerConf.Path)
 		file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY,
 			0664)
 		if err != nil {
-			log.Error().Err(err)
+			helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when setting loggerConf : ", err.Error()))
 		}
 		// Create a multi writer with both the console and file writers
 		stdout = zerolog.MultiLevelWriter(os.Stdout, file)
 
 	}
 
-	return Logger{
-		Log: zerolog.New(stdout).With().Caller().Timestamp().Logger(),
-	}
+	loggerConf.Log = zerolog.New(stdout).With().Caller().Timestamp().Logger()
+	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed read loggerConf", nil)
+	return loggerConf
 }
 
-func ReqResAPIInit(v *viper.Viper) (reqresapi ReqResAPI) {
-	err := v.Unmarshal(&reqresapi)
-	if err != nil {
-		helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when unmarshal configuration file : ", err.Error()))
+func ReqResAPIInit() ReqResAPI {
+	var reqresConf = ReqResAPI{
+		URL:       utils.EnvString("reqres_uri"),
+		TimeOut:   utils.EnvInt("reqres_timeout"),
+		Debugging: utils.EnvBool("reqres_debugging"),
 	}
-	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed when unmarshal configuration file", nil)
-	return
+	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed read reqresConf", nil)
+	return reqresConf
 }
 
 // containters = apps,mysql,logger,redis
@@ -146,7 +137,7 @@ func InitContainer(containters ...string) *Container {
 
 	errGroup.Go(func() (err error) {
 		if strings.Contains(newStrContainer, "apps") || len(containters) == 0 {
-			apps := AppsInit(v)
+			apps := AppsInit()
 			cont.Apps = &apps
 			return
 		}
@@ -155,7 +146,7 @@ func InitContainer(containters ...string) *Container {
 
 	errGroup.Go(func() (err error) {
 		if strings.Contains(newStrContainer, "mysql") || len(containters) == 0 {
-			mysqldb := mysql.DatabaseInit(v)
+			mysqldb := mysqlclient.DatabaseInit()
 			cont.Mysqldb = mysqldb
 			return
 		}
@@ -164,7 +155,7 @@ func InitContainer(containters ...string) *Container {
 
 	errGroup.Go(func() (err error) {
 		if strings.Contains(newStrContainer, "log") || len(containters) == 0 {
-			logger := LoggerInit(v)
+			logger := LoggerInit()
 			cont.Logger = &logger
 			return
 		}
@@ -173,7 +164,7 @@ func InitContainer(containters ...string) *Container {
 
 	errGroup.Go(func() (err error) {
 		if strings.Contains(newStrContainer, "redis") || len(containters) == 0 {
-			redisClient := redisclient.NewRedisClient(v)
+			redisClient := redisclient.NewRedisClient()
 			cont.Redis = redisClient
 			return
 		}
@@ -182,7 +173,7 @@ func InitContainer(containters ...string) *Container {
 
 	errGroup.Go(func() (err error) {
 		if strings.Contains(newStrContainer, "reqresapi") || len(containters) == 0 {
-			reqresapi := ReqResAPIInit(v)
+			reqresapi := ReqResAPIInit()
 			cont.ReqResAPI = &reqresapi
 			return
 		}
@@ -192,8 +183,4 @@ func InitContainer(containters ...string) *Container {
 	_ = errGroup.Wait()
 
 	return &cont
-}
-
-func GetEnv() *viper.Viper {
-	return v
 }

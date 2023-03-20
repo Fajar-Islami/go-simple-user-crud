@@ -8,30 +8,37 @@ import (
 
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/helper"
 	redisRepo "github.com/Fajar-Islami/go-simple-user-crud/internal/pkg/repositories/redis"
+	"github.com/Fajar-Islami/go-simple-user-crud/internal/utils"
 	"github.com/go-redis/redis/v8"
-	"github.com/spf13/viper"
 )
 
 type RedisConf struct {
-	Password          string `mapstructure:"redis_password"`
-	Port              int    `mapstructure:"redis_port"`
-	Host              string `mapstructure:"redis_host"`
-	DB                int    `mapstructure:"redis_db"`
-	DefaultDB         int    `mapstructure:"redis_Defaultdb"`
-	RedisMinIdleConns int    `mapstructure:"redis_MinIdleConns"`
-	RedisPoolSize     int    `mapstructure:"redis_PoolSize"`
-	RedisPoolTimeout  int    `mapstructure:"redis_PoolTimeout"`
-	RedisTTL          int    `mapstructure:"redis_ttl"`
+	Password          string `env:"redis_password"`
+	Port              int    `env:"redis_port"`
+	Host              string `env:"redis_host"`
+	DB                int    `env:"redis_db"`
+	DefaultDB         int    `env:"redis_Defaultdb"`
+	RedisMinIdleConns int    `env:"redis_MinIdleConns"`
+	RedisPoolSize     int    `env:"redis_PoolSize"`
+	RedisPoolTimeout  int    `env:"redis_PoolTimeout"`
+	RedisTTL          int    `env:"redis_ttl"`
 }
 
 const currentfilepath = "internal/infrastructure/redis/redis.go"
 
-func NewRedisClient(v *viper.Viper) *redis.Client {
-	var redisConfig RedisConf
-	err := v.Unmarshal(&redisConfig)
-	if err != nil {
-		helper.Logger(currentfilepath, helper.LoggerLevelPanic, fmt.Sprintf("failed init database redis : %s", err.Error()), nil)
+func NewRedisClient() *redis.Client {
+	var redisConfig = RedisConf{
+		Password:          utils.EnvString("redis_password"),
+		Port:              utils.EnvInt("redis_port"),
+		Host:              utils.EnvString("redis_host"),
+		DB:                utils.EnvInt("redis_db"),
+		DefaultDB:         utils.EnvInt("redis_Defaultdb"),
+		RedisMinIdleConns: utils.EnvInt("redis_MinIdleConns"),
+		RedisPoolSize:     utils.EnvInt("redis_PoolSize"),
+		RedisPoolTimeout:  utils.EnvInt("redis_PoolTimeout"),
+		RedisTTL:          utils.EnvInt("redis_ttl"),
 	}
+
 	redisRepo.RedisTTL = time.Duration(redisConfig.RedisTTL * int(time.Second))
 
 	ctx := context.Background()

@@ -6,30 +6,36 @@ import (
 	"time"
 
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/helper"
-
-	"github.com/spf13/viper"
+	"github.com/Fajar-Islami/go-simple-user-crud/internal/utils"
 )
 
 type MysqlConf struct {
-	Username           string `mapstructure:"mysql_username"`
-	Password           string `mapstructure:"mysql_password"`
-	DbName             string `mapstructure:"mysql_Dbname"`
-	Host               string `mapstructure:"mysql_host"`
-	Port               int    `mapstructure:"mysql_port"`
-	Schema             string `mapstructure:"mysql_schema"`
-	LogMode            bool   `mapstructure:"mysql_logMode"`
-	MaxLifetime        int    `mapstructure:"mysql_maxLifetime"`
-	MinIdleConnections int    `mapstructure:"mysql_minIdleConnections"`
-	MaxOpenConnections int    `mapstructure:"mysql_maxOpenConnections"`
+	Username           string `env:"mysql_username"`
+	Password           string `env:"mysql_password"`
+	DbName             string `env:"mysql_dbname"`
+	Host               string `env:"mysql_host"`
+	Port               int    `env:"mysql_port"`
+	Schema             string `env:"mysql_schema"`
+	LogMode            bool   `env:"mysql_logMode"`
+	MaxLifetime        int    `env:"mysql_maxLifetime"`
+	MinIdleConnections int    `env:"mysql_minIdleConnections"`
+	MaxOpenConnections int    `env:"mysql_maxOpenConnections"`
 }
 
 const currentfilepath = "internal/infrastructure/mysql/mysql.go"
 
-func DatabaseInit(v *viper.Viper) *sql.DB {
-	var mysqlConfig MysqlConf
-	err := v.Unmarshal(&mysqlConfig)
-	if err != nil {
-		helper.Logger(currentfilepath, helper.LoggerLevelPanic, fmt.Sprintf("failed init database mysql : %s", err.Error()), nil)
+func DatabaseInit() *sql.DB {
+	var mysqlConfig = MysqlConf{
+		Username:           utils.EnvString("mysql_username"),
+		Password:           utils.EnvString("mysql_password"),
+		DbName:             utils.EnvString("mysql_dbname"),
+		Host:               utils.EnvString("mysql_host"),
+		Port:               utils.EnvInt("mysql_port"),
+		Schema:             utils.EnvString("mysql_schema"),
+		LogMode:            utils.EnvBool("mysql_logMode"),
+		MaxLifetime:        utils.EnvInt("mysql_maxLifetime"),
+		MinIdleConnections: utils.EnvInt("mysql_minIdleConnections"),
+		MaxOpenConnections: utils.EnvInt("mysql_maxOpenConnections"),
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", mysqlConfig.Username, mysqlConfig.Password, mysqlConfig.Host, mysqlConfig.Port, mysqlConfig.DbName)
