@@ -40,9 +40,6 @@ jobs:
           images: ghcr.io/fajar-islami/go-simple-user-crud
           flavor: |
             latest=false
-          tags: |
-            type=edge
-            type=sha
             
       - name: Build and push Docker image
         uses: docker/build-push-action@v3

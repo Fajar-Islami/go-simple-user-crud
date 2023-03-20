@@ -42,14 +42,14 @@ dockerbuild:
 	docker image prune --filter label=stage=dockerbuilder -f
 
 dockerun:
-	docker run --name ${image}  -p 8080:8080 ${image} 
+	docker run --name ${registry}/${username}/${image}:${tags}  -p 8080:8080 ${image} 
 
 dockerrm:
-	docker rm ${image} -f
-	docker rmi ${image}
+	docker rm ${registry}/${username}/${image}:${tags} -f
+	docker rmi ${registry}/${username}/${image}:${tags}
 
 dockeenter:
-	docker exec -it ${image} bash
+	docker exec -it ${registry}/${username}/${image}:${tags} bash
 
 dc-check:
 	 docker compose -f docker-compose-app.yaml config
