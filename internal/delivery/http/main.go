@@ -28,6 +28,7 @@ import (
 // @BasePath /
 func HTTPRouteInit(cont *container.Container) {
 	e := echo.New()
+	e.Any("", HealthCheck)
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.Validator = NewValidator()
 

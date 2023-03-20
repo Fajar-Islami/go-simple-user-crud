@@ -12,9 +12,9 @@
 [X] Get Detail Save and Get From redis   
 [X] Connect to 3rd party   
 [X] Fix swagger   
-[ ] Deploy to fly.io   
+[X] Deploy to fly.io   
 [X] Add Github Action   
-[ ] Auto Deploy with GA   
+[X] Auto Deploy with GA   
 [ ] Migrate from redis to groupcache   
 [X] Migrate from viper to godotenv
 [X] API HealthCheck   
