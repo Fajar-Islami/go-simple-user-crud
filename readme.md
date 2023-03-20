@@ -15,3 +15,5 @@
 [X] Add Github Action   
 [ ] Auto Deploy with GA   
 [ ] Migrate from redis to groupcache
+[ ] Migrate from viper to github.com/mashingan/smapping
+[ ] API HealthCheck

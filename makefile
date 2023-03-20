@@ -70,7 +70,7 @@ push-image: dockerbuild
 
 
 readenv:
-	export $(cat .env | xargs)
+	export $(cat .env | xargs -L 1)
 
 flysecret:
 	flyctl secrets set $(cat .env | xargs)

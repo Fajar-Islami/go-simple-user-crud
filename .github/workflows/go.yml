@@ -1,10 +1,10 @@
 name: CICD Simple User CRUD
 
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - master
+  # workflow_dispatch:
+  # push:
+  #   branches:
+  #     - master
 
 jobs:
   build:

@@ -72,6 +72,12 @@ func init() {
 	v.AutomaticEnv()
 	loadEnv()
 
+	for _, v := range os.Environ() {
+		if strings.HasPrefix(v, "mysql_") || strings.HasPrefix(v, "redis_") || strings.HasPrefix(v, "log_") || strings.HasPrefix(v, "reqres_") {
+			fmt.Println("env : ", v)
+		}
+	}
+
 	path, err := os.Executable()
 	if err != nil {
 		helper.Logger(currentfilepath, helper.LoggerLevelPanic, "", fmt.Errorf("os.Executable panic : %s", err.Error()))
