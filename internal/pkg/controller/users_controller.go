@@ -82,7 +82,7 @@ func (ohco *usersControllerImpl) GetAllUsers(ctx echo.Context) error {
 // @Tags Users
 // @Summary API Get Users
 // @Router /user/{userid} [get]
-// @Param   id   path  int  true  "User ID"
+// @Param   userid   path  int  true  "User ID"
 // @Produces json
 // @Success 200 {object} helper.Response
 // @Failure 400 {object} helper.Response
@@ -132,7 +132,7 @@ func (ohco *usersControllerImpl) CreateUsers(ctx echo.Context) error {
 // @Tags Users
 // @Summary API Get Users
 // @Router /user/{userid} [put]
-// @Param   id   path  int  true  "User ID"
+// @Param   userid   path  int  true  "User ID"
 // @Param Content-Type header string true "content type request" Enums(application/json)
 // @Param request body dtos.ReqUpdateDataUser true "Payload body [RAW]"
 // @Produces json
@@ -164,7 +164,8 @@ func (ohco *usersControllerImpl) UpdateUsersByID(ctx echo.Context) error {
 // @Tags Users
 // @Summary API Delete Users
 // @Router /user/{userid} [delete]
-// @Param   id   path  int  true  "User ID"
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param   userid   path  int  true  "User ID"
 // @Produces json
 // @Success 200 {object} helper.Response
 // @Failure 400 {object} helper.Response
