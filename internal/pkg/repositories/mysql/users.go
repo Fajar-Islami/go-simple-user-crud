@@ -45,7 +45,7 @@ func (ur *UsersRepoImpl) InsertBulkUsers(ctx context.Context, datas []CreateUser
 	createUserSql = strings.TrimSuffix(createUserSql, ",")
 
 	//prepare the statement
-	createUserSql += "ON DUPLICATE KEY UPDATE id=id,email=email,first_name=first_name,last_name=last_name,avatar=avatar;"
+	createUserSql += "ON DUPLICATE KEY UPDATE email=email;"
 	stmt, err := ur.Queries.db.PrepareContext(ctx, createUserSql)
 	if err != nil {
 		return err
