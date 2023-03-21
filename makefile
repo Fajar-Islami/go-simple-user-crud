@@ -53,6 +53,19 @@ dockerbuild:
 dockerun:
 	docker run --name ${image} -p 8080:8080 ${registry}/${username}/${image}:${tags}
 
+dockerup: ## up compose image
+	docker compose -f docker-compose-app.yaml up -d
+
+dockerlogs: ## logs compose image
+	docker compose -f docker-compose-app.yaml logs -f
+
+dockerstop: ## stop compose image
+	docker compose -f docker-compose-app.yaml stop
+
+dockerdown: ## rm compose image
+	docker compose -f docker-compose-app.yaml down -v
+
+
 dockerrm:
 	docker rm ${registry}/${username}/${image}:${tags} -f
 	docker rmi ${registry}/${username}/${image}:${tags}
@@ -62,7 +75,6 @@ dockerenter:
 
 dockerenter-img:
 	docker run -it --entrypoint sh  ${registry}/${username}/${image}:${tags}
-
 
 dc-check:
 	 docker compose -f docker-compose-app.yaml config

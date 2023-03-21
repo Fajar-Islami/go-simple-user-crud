@@ -2,19 +2,13 @@ services:
   simple_user_crud_app:
     image: ghcr.io/fajar-islami/go-simple-user-crud
     container_name: go-simple-user-crud
-    command: mysqld --default-authentication-plugin=mysql_native_password
     ports:
-      - ${httpport}:8000
+      - 8080:${apps_httpport}
     networks:
       - go_simple_user_crud_network
-    volumes:
-      - go_simple_user_crud:/var/lib/mysql
     env_file:
       - .env
+    restart: on-failure
   
-volumes:
-  go_simple_user_crud: {}
-
 networks:
   go_simple_user_crud_network: {}
-  
