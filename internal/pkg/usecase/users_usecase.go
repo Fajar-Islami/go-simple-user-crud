@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"sync"
 
 	"math"
 	"net/http"
@@ -32,16 +31,16 @@ type UsersUseCase interface {
 }
 
 type usersUseCaseImpl struct {
-	userrepo  repositories.Queries
+	userrepo  repositories.UsersRepo
 	redis     redisRepo.RedisUsersRepository
 	reqresAPI reqresAPI.ReqResAPI
 }
 
-func NewUsersUseCase(userrepo repositories.Queries, redis redisRepo.RedisUsersRepository, reqresAPI reqresAPI.ReqResAPI) UsersUseCase {
+func NewUsersUseCase(userrepo *repositories.UsersRepo, redis *redisRepo.RedisUsersRepository, reqresAPI *reqresAPI.ReqResAPI) UsersUseCase {
 	return &usersUseCaseImpl{
-		userrepo:  userrepo,
-		redis:     redis,
-		reqresAPI: reqresAPI,
+		userrepo:  *userrepo,
+		redis:     *redis,
+		reqresAPI: *reqresAPI,
 	}
 
 }
@@ -53,7 +52,6 @@ func (usc *usersUseCaseImpl) GetUsersFetch(ctx echo.Context, params dtos.FilterU
 		return res, err
 	}
 	dataRows := make([]dtos.ResDataUserSingle, 0)
-	var wg sync.WaitGroup
 
 	resAPI, errAPI := usc.reqresAPI.GetListUser(reqresAPI.ReqListUser{
 		PerPage: params.Limit,
@@ -68,6 +66,8 @@ func (usc *usersUseCaseImpl) GetUsersFetch(ctx echo.Context, params dtos.FilterU
 		}
 	}
 
+	usersData := make([]repositories.CreateUserParams, 0)
+
 	for _, v := range resAPI.Data {
 		dataRows = append(dataRows, dtos.ResDataUserSingle{
 			Email:     v.Email,
@@ -76,29 +76,30 @@ func (usc *usersUseCaseImpl) GetUsersFetch(ctx echo.Context, params dtos.FilterU
 			Avatar:    v.Avatar,
 		})
 
-		wg.Add(1)
-		go func(v reqresAPI.ListUser, wg *sync.WaitGroup) {
-			defer wg.Done()
-			id := utils.IDGenerator()
-			fmt.Println("Add insert data user", v.Email)
-			contx := context.Background()
-			_, errRepo := usc.userrepo.CreateUser(contx, repositories.CreateUserParams{
-				ID:        id,
-				Email:     v.Email,
-				FirstName: v.FirstName,
-				LastName:  v.LastName,
-				Avatar: sql.NullString{
-					String: v.Avatar,
-					Valid:  true,
-				},
-			})
-			if errRepo != nil {
-				log.Error("Err when CreateUser :", errRepo)
-			}
-		}(v, &wg)
+		id := utils.IDGenerator()
+		usersData = append(usersData, repositories.CreateUserParams{
+			ID:        id,
+			Email:     v.Email,
+			FirstName: v.FirstName,
+			LastName:  v.LastName,
+			Avatar: sql.NullString{
+				String: v.Avatar,
+				Valid:  true,
+			},
+		})
 	}
 
-	wg.Wait()
+	go func(usersData []repositories.CreateUserParams) {
+		if len(usersData) < 1 {
+			return
+		}
+		newCtx := context.Background()
+		err := usc.userrepo.InsertBulkUsers(newCtx, usersData)
+		if err != nil {
+			log.Error(err)
+		}
+
+	}(usersData)
 
 	res.Data = dataRows
 	res.Page = resAPI.Page

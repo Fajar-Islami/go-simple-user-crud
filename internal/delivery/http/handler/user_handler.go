@@ -21,8 +21,8 @@ func AuthHandler(r *echo.Group, containerConf *container.Container, authMiddlewa
 		IsDebugging: containerConf.ReqResAPI.Debugging,
 	})
 	redis := redisRepo.NewRedisRepoUsers(containerConf.Redis, &containerConf.Logger.Log)
-	repo := mysqlrepo.New(containerConf.Mysqldb)
-	usecase := usecase.NewUsersUseCase(*repo, redis, reqresRepo)
+	repo := mysqlrepo.NewUserRepo(containerConf.Mysqldb)
+	usecase := usecase.NewUsersUseCase(&repo, &redis, &reqresRepo)
 	controller := controller.NewUsersController(usecase)
 
 	usersAPI := r.Group("/user")
