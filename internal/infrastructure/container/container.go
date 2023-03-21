@@ -40,12 +40,13 @@ type (
 	}
 
 	Apps struct {
-		Name      string `env:"apps_appName"`
-		Host      string `env:"apps_host"`
-		Version   string `env:"apps_version"`
-		Address   string `env:"apps_address"`
-		HttpPort  int    `env:"apps_httpport"`
-		SecretJwt string `env:"apps_secretJwt"`
+		Name           string `env:"apps_appName"`
+		Host           string `env:"apps_host"`
+		Version        string `env:"apps_version"`
+		Address        string `env:"apps_address"`
+		SwaggerAddress string `env:"app_swagger_address"`
+		HttpPort       int    `env:"apps_httpport"`
+		SecretJwt      string `env:"apps_secretJwt"`
 	}
 
 	ReqResAPI struct {
@@ -75,12 +76,13 @@ func init() {
 
 func AppsInit() Apps {
 	var appsConf = Apps{
-		Name:      utils.EnvString("apps_appName"),
-		Host:      utils.EnvString("apps_host"),
-		Version:   utils.EnvString("apps_version"),
-		Address:   utils.EnvString("apps_address"),
-		HttpPort:  utils.EnvInt("apps_httpport"),
-		SecretJwt: utils.EnvString("apps_secretJwt"),
+		Name:           utils.EnvString("apps_appName"),
+		Host:           utils.EnvString("apps_host"),
+		Version:        utils.EnvString("apps_version"),
+		Address:        utils.EnvString("apps_address"),
+		SwaggerAddress: utils.EnvString("app_swagger_address"),
+		HttpPort:       utils.EnvInt("apps_httpport"),
+		SecretJwt:      utils.EnvString("apps_secretJwt"),
 	}
 
 	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed read appsConf", nil)
