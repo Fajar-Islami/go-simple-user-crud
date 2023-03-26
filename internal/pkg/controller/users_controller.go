@@ -3,6 +3,7 @@ package controller
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"strconv"
 
@@ -65,18 +66,46 @@ func (ohco *usersControllerImpl) GetUsersFetch(ctx echo.Context) error {
 // @Failure 404 {object} helper.Response
 // @Failure 500 {object} helper.Response
 func (ohco *usersControllerImpl) GetAllUsers(ctx echo.Context) error {
-	filter := new(dtos.FilterUsers)
-	if err := ctx.Bind(filter); err != nil {
-		log.Println(err)
-		return helper.BuildResponse(ctx, false, helper.FAILEDGETDATA, err.Error(), nil, http.StatusBadRequest)
+	contx := ctx.Request().Context()
+	done := make(chan bool)
+
+	var resp error
+	go func() {
+		filter := new(dtos.FilterUsers)
+		if err := ctx.Bind(filter); err != nil {
+			log.Println(err)
+			resp = helper.BuildResponse(ctx, false, helper.FAILEDGETDATA, err.Error(), nil, http.StatusBadRequest)
+			done <- true
+			return
+		}
+
+		res, err := ohco.usersusecase.GetAllUsers(ctx, *filter)
+		if err != nil {
+			resp = helper.BuildResponse(ctx, false, helper.FAILEDGETDATA, err.Err.Error(), nil, err.Code)
+			done <- true
+			return
+		}
+
+		resp = helper.BuildResponse(ctx, true, helper.SUCCEEDGETDATA, "", res, http.StatusOK)
+
+		done <- true
+	}()
+
+	select {
+	case <-contx.Done():
+		if err := contx.Err(); err != nil {
+			if strings.Contains(strings.ToLower(err.Error()), "canceled") {
+				log.Println("request canceled")
+			} else {
+				log.Println("unknown error occured.", err.Error())
+			}
+		}
+	case <-done:
+		break
 	}
 
-	res, err := ohco.usersusecase.GetAllUsers(ctx, *filter)
-	if err != nil {
-		return helper.BuildResponse(ctx, false, helper.FAILEDGETDATA, err.Err.Error(), nil, err.Code)
-	}
+	return resp
 
-	return helper.BuildResponse(ctx, true, helper.SUCCEEDGETDATA, "", res, http.StatusOK)
 }
 
 // @Tags Users
