@@ -53,13 +53,13 @@ func (usc *usersUseCaseImpl) GetUsersFetch(ctx echo.Context, params dtos.FilterU
 	}
 	dataRows := make([]dtos.ResDataUserSingle, 0)
 
-	resAPI, errAPI := usc.reqresAPI.GetListUser(reqresAPI.ReqListUser{
+	resAPI, errAPI := usc.reqresAPI.GetListUser(ctx.Request().Context(), reqresAPI.ReqListUser{
 		PerPage: params.Limit,
 		Page:    params.Page,
 	})
 
 	if errAPI != nil {
-		log.Error("Err when get GetUsersFetch :", err)
+		log.Error("Err when get GetUsersFetch :", errAPI)
 		return res, &helper.ErrorStruct{
 			Code: http.StatusBadRequest,
 			Err:  errAPI,
@@ -111,6 +111,7 @@ func (usc *usersUseCaseImpl) GetUsersFetch(ctx echo.Context, params dtos.FilterU
 
 func (usc *usersUseCaseImpl) GetAllUsers(ctx echo.Context, params dtos.FilterUsers) (res dtos.ResDataUsers, err *helper.ErrorStruct) {
 	log := ctx.Logger()
+
 	err = usecaseValidation(ctx, params)
 	if err != nil {
 		return res, err
@@ -130,7 +131,7 @@ func (usc *usersUseCaseImpl) GetAllUsers(ctx echo.Context, params dtos.FilterUse
 	})
 
 	if errors.Is(errRepo, sql.ErrNoRows) {
-		log.Error("No data users error :", err)
+		log.Error("No data users error :", errRepo)
 		return res, &helper.ErrorStruct{
 			Code: http.StatusNotFound,
 			Err:  errors.New("No Data Users"),
@@ -138,7 +139,7 @@ func (usc *usersUseCaseImpl) GetAllUsers(ctx echo.Context, params dtos.FilterUse
 	}
 
 	if errRepo != nil {
-		log.Error("Err when get many user :", err)
+		log.Error("Err when get many user :", errRepo)
 		return res, &helper.ErrorStruct{
 			Code: http.StatusBadRequest,
 			Err:  errRepo,
@@ -152,7 +153,7 @@ func (usc *usersUseCaseImpl) GetAllUsers(ctx echo.Context, params dtos.FilterUse
 	})
 
 	if errRepo != nil {
-		log.Error("Err when get count user :", err)
+		log.Error("Err when get count user :", errRepo)
 		return res, &helper.ErrorStruct{
 			Code: http.StatusBadRequest,
 			Err:  errRepo,
@@ -226,7 +227,7 @@ func (usc *usersUseCaseImpl) GetUserByID(ctx echo.Context, userid int) (res dtos
 	// Set data to redis
 	errRedis = usc.redis.SetUsersCtx(contx, &res)
 	if errRedis != nil || errRedis == redis.Nil {
-		log.Error("Error when SetUsersCtx from redis: ", err)
+		log.Error("Error when SetUsersCtx from redis: ", errRedis)
 	}
 
 	return res, nil
@@ -283,7 +284,7 @@ func (usc *usersUseCaseImpl) UpdateUsersByID(ctx echo.Context, userid int, param
 	// Check data from mysql
 	resRepo, err := usc.getUserByIDHelper(contx, userid)
 	if err != nil {
-		log.Error("Error when getUserByIDHelper at UpdateUsersByID: ", err)
+		log.Error("Error when getUserByIDHelper at UpdateUsersByID: ", resRepo)
 		return res, err
 	}
 
@@ -312,7 +313,7 @@ func (usc *usersUseCaseImpl) UpdateUsersByID(ctx echo.Context, userid int, param
 	})
 
 	if errRepo != nil {
-		log.Error("Error when UpdatePartialUsers : ", err)
+		log.Error("Error when UpdatePartialUsers : ", errRepo)
 		return res, &helper.ErrorStruct{
 			Code: http.StatusBadRequest,
 			Err:  errRepo,
@@ -322,7 +323,7 @@ func (usc *usersUseCaseImpl) UpdateUsersByID(ctx echo.Context, userid int, param
 	// // Delete key in redis
 	errRedis := usc.redis.DeleteUsersCtx(ctx.Request().Context(), userid)
 	if errRedis != nil {
-		log.Error("Error when DeleteUsersCtx from redis: ", err)
+		log.Error("Error when DeleteUsersCtx from redis: ", errRedis)
 	}
 
 	return "Succeed update user", nil
@@ -342,7 +343,7 @@ func (usc *usersUseCaseImpl) DeleteUsersByID(ctx echo.Context, userid int) (res 
 
 	errRepo := usc.userrepo.SoftDeleteUser(contx, resRepo.ID)
 	if errRepo != nil {
-		log.Error("Error delete user : ", err)
+		log.Error("Error delete user : ", errRepo)
 		return res, &helper.ErrorStruct{
 			Code: http.StatusBadRequest,
 			Err:  errRepo,
@@ -351,7 +352,7 @@ func (usc *usersUseCaseImpl) DeleteUsersByID(ctx echo.Context, userid int) (res 
 
 	errRedis := usc.redis.DeleteUsersCtx(ctx.Request().Context(), userid)
 	if errRedis != nil {
-		log.Error("Error when DeleteUsersCtx from redis: ", err)
+		log.Error("Error when DeleteUsersCtx from redis: ", errRedis)
 	}
 
 	return "Succeed delete user", nil

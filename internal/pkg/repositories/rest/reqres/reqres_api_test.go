@@ -1,12 +1,14 @@
 package reqres
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/container"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/pkg/repositories/rest"
+	"github.com/Fajar-Islami/go-simple-user-crud/internal/utils"
 )
 
 func TestNewListUsersRepository(t *testing.T) {
@@ -65,8 +67,14 @@ func TestListUsersRepositoryImpl_GetListUser(t *testing.T) {
 		wantErr:    false,
 	}}
 	for _, tt := range tests {
+		ctx := context.Background()
+		CtxTimeout := utils.EnvInt("apps_timeout")
+		cntx, cancel := context.WithTimeout(ctx, time.Duration(time.Duration(CtxTimeout*int(time.Second))))
+		defer cancel()
+
 		t.Run(tt.name, func(t *testing.T) {
-			gotRes, err := tt.lur.GetListUser(tt.args.params)
+
+			gotRes, err := tt.lur.GetListUser(cntx, tt.args.params)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListUsersRepositoryImpl.GetListUser() error = %v, wantErr %v", err, tt.wantErr)
 				return

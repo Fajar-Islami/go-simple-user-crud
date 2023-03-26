@@ -196,7 +196,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "User ID",
-                        "name": "id",
+                        "name": "userid",
                         "in": "path",
                         "required": true
                     }
@@ -237,7 +237,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "User ID",
-                        "name": "id",
+                        "name": "userid",
                         "in": "path",
                         "required": true
                     },
@@ -295,9 +295,17 @@ const docTemplate = `{
                 "summary": "API Delete Users",
                 "parameters": [
                     {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "User ID",
-                        "name": "id",
+                        "name": "userid",
                         "in": "path",
                         "required": true
                     }

@@ -1,6 +1,7 @@
 package reqres
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,7 +11,7 @@ import (
 )
 
 type ReqResAPI interface {
-	GetListUser(params ReqListUser) (res ResListUsers, err error)
+	GetListUser(ctx context.Context, params ReqListUser) (res ResListUsers, err error)
 }
 type ReqResAPIImpl struct {
 	URI  string
@@ -24,10 +25,10 @@ func NewReqResAPI(URI string, Opts rest.Opts) ReqResAPI {
 	}
 }
 
-func (lur *ReqResAPIImpl) GetListUser(params ReqListUser) (res ResListUsers, err error) {
+func (lur *ReqResAPIImpl) GetListUser(ctx context.Context, params ReqListUser) (res ResListUsers, err error) {
 	uri := fmt.Sprintf("%s?page=%d&per_page=%d", lur.URI, params.Page, params.PerPage)
 
-	respHttp, err := rest.DoRequest(http.MethodGet, uri, lur.Opts)
+	respHttp, err := rest.DoRequest(ctx, http.MethodGet, uri, lur.Opts)
 	if err != nil {
 		log.Println(err)
 		return res, err

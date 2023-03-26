@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"time"
@@ -15,7 +16,7 @@ type Opts struct {
 	IsDebugging bool
 }
 
-func DoRequest(method, uri string, opts Opts, body ...io.Reader) (*http.Response, error) {
+func DoRequest(ctx context.Context, method, uri string, opts Opts, body ...io.Reader) (*http.Response, error) {
 	var err error
 	var client = &http.Client{
 		Transport: TransportWithLogger(opts),
@@ -29,7 +30,7 @@ func DoRequest(method, uri string, opts Opts, body ...io.Reader) (*http.Response
 		newBody = body[0]
 	}
 
-	request, err := http.NewRequest(method, uri, newBody)
+	request, err := http.NewRequestWithContext(ctx, method, uri, newBody)
 	if err != nil {
 		return nil, err
 	}

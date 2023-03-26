@@ -3,6 +3,8 @@ package http
 import (
 	"fmt"
 	"net/http"
+	"runtime"
+	"time"
 
 	"github.com/Fajar-Islami/go-simple-user-crud/docs"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/delivery/http/handler"
@@ -28,13 +30,25 @@ import (
 // @BasePath /
 func HTTPRouteInit(cont *container.Container) {
 	e := echo.New()
+	e.Validator = NewValidator()
+
 	e.Any("", HealthCheck)
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	e.Validator = NewValidator()
 
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.Use(LoggerMiddleware(&cont.Logger.Log))
+	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
+		Skipper: func(c echo.Context) bool {
+			requestPath := c.Request().URL.String()
+			return requestPath == "/swagger/*"
+		},
+		ErrorMessage: "Request timeout",
+		OnTimeoutRouteErrorHandler: func(err error, c echo.Context) {
+			c.Logger().Error(err)
+		},
+		Timeout: time.Duration(cont.Apps.CtxTimeout * int(time.Second)),
+	}))
 
 	port := fmt.Sprintf("%s:%d", cont.Apps.Host, cont.Apps.HttpPort)
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s/api/v1", cont.Apps.SwaggerAddress)
@@ -45,6 +59,7 @@ func HTTPRouteInit(cont *container.Container) {
 	api.Any("/health", HealthCheck)
 	handler.AuthHandler(api, cont, AuthMiddleware)
 
+	fmt.Println("start goroutine", runtime.NumGoroutine())
 	e.Logger.Fatal(e.Start(port))
 }
 

@@ -22,7 +22,7 @@ readenv: ## not work
 	export $(cat .env | xargs -L 1)
 
 .PHONY: migrate
-migrate: ## Create Migrations file
+migrate: ## Create Migrations file, example : make migrate name="xxxx"
 	@if [ -z "${name}" ]; then \
 		echo "Error: name is required \t example : make migrate name="name_file_migration";" \
 		exit 1; \
