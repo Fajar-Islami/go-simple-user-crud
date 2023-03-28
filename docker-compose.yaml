@@ -27,7 +27,6 @@ services:
       - go_simple_user_crud_network
     volumes:
       - redis_go_simple_user_crud:/data
-      - ./redis.conf:/etc/redis/redis.conf
 
 volumes:
   mysql_go_simple_user_crud: {}
