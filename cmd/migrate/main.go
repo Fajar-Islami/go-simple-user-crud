@@ -11,13 +11,19 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-var rollback bool
-
 func main() {
+	var rollback bool
 	flag.BoolVar(&rollback, "rollback", false, "")
+	var env = flag.String("envfile", "env", "enter env file")
+
 	flag.Parse()
 
-	container.Initcont(".env")
+	if *env == "" {
+		container.Initcont(".env")
+	} else {
+		container.Initcont(".env.test")
+	}
+
 	cont := container.InitContainer("mysql")
 	driver, err := mysql.WithInstance(cont.Mysqldb, &mysql.Config{})
 	if err != nil {

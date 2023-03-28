@@ -32,10 +32,10 @@ migrate: ## Create Migrations file, example : make migrate name="xxxx"
 
 
 migrate-up: ## Up migration
-	go run cmd/migrate/main.go
+	go run cmd/migrate/main.go -envfile=${envfile}
 
 migrate-rollback: ## Up rollback
-	go run cmd/migrate/main.go -rollback
+	go run cmd/migrate/main.go -rollback -envfile=${envfile}
 
 build:
 	go build -o app cmd/main.go
@@ -88,3 +88,7 @@ flysecret:
 
 flylist:
 	flyctl secrets list
+
+
+entermysql:
+	docker exec -it mysql_go_simple_user_crud mysql -uADMIN -pSECRET go_simple_user_crud
