@@ -43,7 +43,6 @@ type (
 		Name           string `env:"apps_appName"`
 		Host           string `env:"apps_host"`
 		Version        string `env:"apps_version"`
-		Address        string `env:"apps_address"`
 		SwaggerAddress string `env:"apps_swagger_address"`
 		HttpPort       int    `env:"apps_httpport"`
 		SecretJwt      string `env:"apps_secretJwt"`
@@ -62,7 +61,7 @@ var mapsEnv = smapping.Mapped{}
 func Initcont(filename string) {
 	err := godotenv.Load(fmt.Sprintf("%s/%s", helper.ProjectRootPath, filename))
 	if err != nil {
-		helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when loadenv : ", err.Error()))
+		helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when loadenv : %s", err.Error()))
 	}
 
 	for _, v := range os.Environ() {
@@ -80,7 +79,6 @@ func AppsInit() Apps {
 		Name:           utils.EnvString("apps_appName"),
 		Host:           utils.EnvString("apps_host"),
 		Version:        utils.EnvString("apps_version"),
-		Address:        utils.EnvString("apps_address"),
 		SwaggerAddress: utils.EnvString("apps_swagger_address"),
 		HttpPort:       utils.EnvInt("apps_httpport"),
 		SecretJwt:      utils.EnvString("apps_secretJwt"),
@@ -99,7 +97,7 @@ func LoggerInit() Logger {
 
 	err := smapping.FillStructByTags(&loggerConf, mapsEnv, "env")
 	if err != nil {
-		helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when read loggerConf : ", err.Error()))
+		helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when read loggerConf : %s", err.Error()))
 	}
 	helper.Logger(currentfilepath, helper.LoggerLevelInfo, "Succeed when read loggerConf", nil)
 
@@ -111,7 +109,7 @@ func LoggerInit() Logger {
 		file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY,
 			0664)
 		if err != nil {
-			helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when setting loggerConf : ", err.Error()))
+			helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when setting loggerConf : %s", err.Error()))
 		}
 		// Create a multi writer with both the console and file writers
 		stdout = zerolog.MultiLevelWriter(os.Stdout, file)
