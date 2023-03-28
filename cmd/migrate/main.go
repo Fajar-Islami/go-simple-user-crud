@@ -30,30 +30,6 @@ func main() {
 		log.Println("err", err)
 	}
 
-	// cont := container.GetEnv()
-	// var mysqlConfig mysqlclient.MysqlConf
-	// err := cont.Unmarshal(&mysqlConfig)
-	// if err != nil {
-	// 	log.Println("err", err)
-	// }
-
-	// u := &url.URL{}
-	// u.Scheme = "mysql"
-	// u.User = url.UserPassword(mysqlConfig.Username, mysqlConfig.Password)
-	// u.Host = mysqlConfig.Host + ":" + strconv.Itoa(mysqlConfig.Port)
-	// u.Path = mysqlConfig.DbName
-	// v := url.Values{}
-	// v.Set("sslmode", "disable")
-	// u.RawQuery = v.Encode()
-
-	// dsn := fmt.Sprintf("mysql://%s:%s@tcp(%s:%d)/%s?&charset=utf8mb4&parseTime=True&loc=Local", mysqlConfig.Username, mysqlConfig.Password, mysqlConfig.Host, mysqlConfig.Port, mysqlConfig.DbName)
-	// fmt.Println("dsn", dsn)
-
-	// m, err := migrate.New("file://migrations", dsn)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	log.Println("Running migration")
 
 	if rollback {

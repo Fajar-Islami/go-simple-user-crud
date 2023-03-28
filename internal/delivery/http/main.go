@@ -3,7 +3,6 @@ package http
 import (
 	"fmt"
 	"net/http"
-	"runtime"
 	"time"
 
 	"github.com/Fajar-Islami/go-simple-user-crud/docs"
@@ -59,7 +58,6 @@ func HTTPRouteInit(cont *container.Container) {
 	api.Any("/health", HealthCheck)
 	handler.AuthHandler(api, cont, AuthMiddleware)
 
-	fmt.Println("start goroutine", runtime.NumGoroutine())
 	e.Logger.Fatal(e.Start(port))
 }
 
