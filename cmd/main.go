@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	container.Initcont(".env")
 	contConf := container.InitContainer()
 
 	defer contConf.Mysqldb.Close()

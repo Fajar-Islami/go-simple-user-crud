@@ -59,8 +59,8 @@ type (
 
 var mapsEnv = smapping.Mapped{}
 
-func init() {
-	err := godotenv.Load(fmt.Sprintf("%s/.env", helper.ProjectRootPath))
+func Initcont(filename string) {
+	err := godotenv.Load(fmt.Sprintf("%s/%s", helper.ProjectRootPath, filename))
 	if err != nil {
 		helper.Logger(currentfilepath, helper.LoggerLevelError, "", fmt.Errorf("error when loadenv : ", err.Error()))
 	}

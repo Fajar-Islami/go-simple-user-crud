@@ -17,6 +17,7 @@ func main() {
 	flag.BoolVar(&rollback, "rollback", false, "")
 	flag.Parse()
 
+	container.Initcont(".env")
 	cont := container.InitContainer("mysql")
 	driver, err := mysql.WithInstance(cont.Mysqldb, &mysql.Config{})
 	if err != nil {
