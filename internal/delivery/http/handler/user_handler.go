@@ -14,7 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func AuthHandler(r *echo.Group, containerConf *container.Container, authMiddleware utils.MiddlewareType) {
+func UserHandler(r *echo.Group, containerConf *container.Container, authMiddleware utils.MiddlewareType) {
 	reqresRepo := reqresAPI.NewReqResAPI(containerConf.ReqResAPI.URL, rest.Opts{
 		Timeout:     time.Duration(containerConf.ReqResAPI.TimeOut * int(time.Minute)),
 		Logger:      *containerConf.Logger,

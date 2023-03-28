@@ -56,7 +56,7 @@ func HTTPRouteInit(cont *container.Container) {
 	api := e.Group("/api/v1") // /api
 	api.Any("", HealthCheck)
 	api.Any("/health", HealthCheck)
-	handler.AuthHandler(api, cont, AuthMiddleware)
+	handler.UserHandler(api, cont, AuthMiddleware)
 
 	e.Logger.Fatal(e.Start(port))
 }
