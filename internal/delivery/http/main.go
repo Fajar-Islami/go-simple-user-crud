@@ -1,8 +1,12 @@
 package http
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/Fajar-Islami/go-simple-user-crud/docs"
@@ -58,7 +62,23 @@ func HTTPRouteInit(cont *container.Container) {
 	api.Any("/health", HealthCheck)
 	handler.UserHandler(api, cont, AuthMiddleware)
 
-	e.Logger.Fatal(e.Start(port))
+	// Start server
+	go func() {
+		if err := e.Start(port); err != nil && err != http.ErrServerClosed {
+			e.Logger.Fatal("shutting down the server : ", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
+	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal("shutting down the server :", err)
+	}
 }
 
 func HealthCheck(c echo.Context) error {
