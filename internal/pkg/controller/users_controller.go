@@ -110,7 +110,7 @@ func (ohco *usersControllerImpl) GetUserByID(ctx echo.Context) error {
 // @Param request body dtos.ReqCreateDataUser true "Payload body [RAW]"
 // @Accept json
 // @Produces json
-// @Success 200 {object} helper.Response
+// @Success 201 {object} helper.Response
 // @Failure 400 {object} helper.Response
 // @Failure 404 {object} helper.Response
 // @Failure 500 {object} helper.Response
@@ -126,7 +126,7 @@ func (ohco *usersControllerImpl) CreateUsers(ctx echo.Context) error {
 		return helper.BuildResponse(ctx, false, helper.FAILEDPOSTDATA, err.Err.Error(), nil, err.Code)
 	}
 
-	return helper.BuildResponse(ctx, true, helper.SUCCEEDPOSTDATA, "", res, http.StatusOK)
+	return helper.BuildResponse(ctx, true, helper.SUCCEEDPOSTDATA, "", res, http.StatusCreated)
 }
 
 // @Tags Users
@@ -158,7 +158,7 @@ func (ohco *usersControllerImpl) UpdateUsersByID(ctx echo.Context) error {
 		return helper.BuildResponse(ctx, false, helper.FAILEDUPDATEDATA, err.Err.Error(), nil, err.Code)
 	}
 
-	return helper.BuildResponse(ctx, true, helper.SUCCEEDUPDATEDATA, "", res, http.StatusOK)
+	return helper.BuildResponse(ctx, true, helper.SUCCEEDUPDATEDATA, "", res, http.StatusNoContent)
 }
 
 // @Tags Users
@@ -183,5 +183,5 @@ func (ohco *usersControllerImpl) DeleteUsersByID(ctx echo.Context) error {
 		return helper.BuildResponse(ctx, false, helper.FAILEDDELETEDATA, err.Err.Error(), nil, err.Code)
 	}
 
-	return helper.BuildResponse(ctx, true, helper.SUCCEEDUPDATEDATA, "", res, http.StatusOK)
+	return helper.BuildResponse(ctx, true, helper.SUCCEEDUPDATEDATA, "", res, http.StatusNoContent)
 }
