@@ -22,6 +22,7 @@ type RedisConf struct {
 	RedisPoolSize     int    `env:"redis_PoolSize"`
 	RedisPoolTimeout  int    `env:"redis_PoolTimeout"`
 	RedisTTL          int    `env:"redis_ttl"`
+	TLSConfig         bool   `env:"redis_TLSConfig"`
 }
 
 const currentfilepath = "internal/infrastructure/redis/redis.go"
@@ -37,6 +38,7 @@ func NewRedisClient() *redis.Client {
 		RedisPoolSize:     utils.EnvInt("redis_PoolSize"),
 		RedisPoolTimeout:  utils.EnvInt("redis_PoolTimeout"),
 		RedisTTL:          utils.EnvInt("redis_ttl"),
+		TLSConfig:         utils.EnvBool("redis_TLSConfig"),
 	}
 
 	redisRepo.RedisTTL = time.Duration(redisConfig.RedisTTL * int(time.Second))
@@ -50,10 +52,13 @@ func NewRedisClient() *redis.Client {
 		PoolTimeout:  time.Duration(redisConfig.RedisPoolTimeout) * time.Second,
 		Password:     redisConfig.Password,
 		DB:           redisConfig.DB,
-		TLSConfig: &tls.Config{
-			MinVersion: tls.VersionTLS12,
-		},
 	})
+
+	if redisConfig.TLSConfig {
+		client.Options().TLSConfig = &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		}
+	}
 
 	pong, err := client.Ping(ctx).Result()
 	if err != nil {
