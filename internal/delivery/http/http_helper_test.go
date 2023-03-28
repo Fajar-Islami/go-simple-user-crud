@@ -1,7 +1,6 @@
 package http
 
 import (
-	"os"
 	"testing"
 
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/delivery/http/handler"
@@ -17,9 +16,8 @@ func TestMain(m *testing.M) {
 	container.Initcont(".env.test")
 	contConf = container.InitContainer()
 
-	defer contConf.Mysqldb.Close()
-
-	os.Exit(m.Run())
+	m.Run()
+	contConf.Mysqldb.Close()
 }
 
 func TestInitContainer(t *testing.T) {

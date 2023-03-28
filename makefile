@@ -92,3 +92,7 @@ flylist:
 
 entermysql:
 	docker exec -it mysql_go_simple_user_crud mysql -uADMIN -pSECRET go_simple_user_crud
+
+
+test:
+	go test -run=TestUsers ./internal/delivery/http -v -count 1

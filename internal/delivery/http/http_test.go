@@ -12,7 +12,7 @@ import (
 	"github.com/go-playground/assert/v2"
 )
 
-func TestGetUser(t *testing.T) {
+func TestUsersGet(t *testing.T) {
 	e := HelperRouterUser(t)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/user?page=1&limit=1", nil)
@@ -28,7 +28,6 @@ func TestGetUser(t *testing.T) {
 	body, _ := io.ReadAll(response.Body)
 	var responseBody map[string]interface{}
 	json.Unmarshal(body, &responseBody)
-	t.Log("body : ", responseBody["data"])
 
 	dataJson, _ := json.Marshal(responseBody["data"])
 	var responseBodyStruct dtos.ResDataUsers
