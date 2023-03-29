@@ -1,9 +1,9 @@
-package http
+package handler
 
 import (
 	"testing"
 
-	"github.com/Fajar-Islami/go-simple-user-crud/internal/delivery/http/handler"
+	custommmiddleware "github.com/Fajar-Islami/go-simple-user-crud/internal/delivery/http/middleware"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/container"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/labstack/echo/v4"
@@ -31,10 +31,10 @@ func TestInitContainer(t *testing.T) {
 func HelperRouterUser(t *testing.T) *echo.Echo {
 	t.Helper()
 	e := echo.New()
-	e.Validator = NewValidator()
+	e.Validator = custommmiddleware.NewValidator()
 	e.Use(middleware.Logger())
 
 	api := e.Group("/api/v1") // /api
-	handler.UserHandler(api, contConf, AuthMiddleware)
+	UserHandler(api, contConf, custommmiddleware.AuthMiddleware)
 	return e
 }

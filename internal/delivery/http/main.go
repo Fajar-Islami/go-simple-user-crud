@@ -11,6 +11,7 @@ import (
 
 	"github.com/Fajar-Islami/go-simple-user-crud/docs"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/delivery/http/handler"
+	custommmiddleware "github.com/Fajar-Islami/go-simple-user-crud/internal/delivery/http/middleware"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/infrastructure/container"
 	"github.com/Fajar-Islami/go-simple-user-crud/internal/utils"
 	"github.com/labstack/echo/v4"
@@ -33,14 +34,14 @@ import (
 // @BasePath /
 func HTTPRouteInit(cont *container.Container) {
 	e := echo.New()
-	e.Validator = NewValidator()
+	e.Validator = custommmiddleware.NewValidator()
 
 	e.Any("", HealthCheck)
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
-	e.Use(LoggerMiddleware(&cont.Logger.Log))
+	e.Use(custommmiddleware.LoggerMiddleware(&cont.Logger.Log))
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Skipper: func(c echo.Context) bool {
 			requestPath := c.Request().URL.String()
@@ -60,7 +61,7 @@ func HTTPRouteInit(cont *container.Container) {
 	api := e.Group("/api/v1") // /api
 	api.Any("", HealthCheck)
 	api.Any("/health", HealthCheck)
-	handler.UserHandler(api, cont, AuthMiddleware)
+	handler.UserHandler(api, cont, custommmiddleware.AuthMiddleware)
 
 	// Start server
 	go func() {

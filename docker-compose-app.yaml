@@ -1,6 +1,7 @@
 services:
   simple_user_crud_app:
-    image: ghcr.io/fajar-islami/go-simple-user-crud
+    build: .
+    image: go-simple-user-crud
     container_name: go-simple-user-crud
     ports:
       - 8080:${apps_httpport}

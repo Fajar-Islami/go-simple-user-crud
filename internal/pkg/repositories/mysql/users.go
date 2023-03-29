@@ -3,7 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"log"
 	"strings"
 )
 
@@ -56,7 +56,8 @@ func (ur *UsersRepoImpl) InsertBulkUsers(ctx context.Context, datas []CreateUser
 	if err != nil {
 		return err
 	}
-	fmt.Println("createUserSql res : ", res)
+	affectedRow, _ := res.RowsAffected()
+	log.Println("createUserSql affectedRow : ", affectedRow)
 
 	return nil
 }
