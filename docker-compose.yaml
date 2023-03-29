@@ -9,8 +9,6 @@ services:
       - go_simple_user_crud_network
     volumes:
       - mysql_go_simple_user_crud:/var/lib/mysql
-    env_file:
-      - .env
     environment:
        MYSQL_ROOT_PASSWORD : ROOT
        MYSQL_PASSWORD : SECRET
