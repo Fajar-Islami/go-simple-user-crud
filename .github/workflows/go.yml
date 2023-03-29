@@ -28,7 +28,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
   test:
-    name: Build Binary and Docker Image
+    name: Integration Testing
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
