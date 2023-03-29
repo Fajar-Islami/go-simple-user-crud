@@ -31,10 +31,10 @@ migrate: ## Create Migrations file, example : make migrate name="xxxx"
 
 
 
-migrate-up: ## Up migration
+migrate-up: ## Up migration, example : make migrate-up envfile=.env.test
 	go run cmd/migrate/main.go -envfile=${envfile}
 
-migrate-rollback: ## Up rollback
+migrate-rollback: ## Up rollback, example : make migrate-rollback -rollback=true envfile=.env.test
 	go run cmd/migrate/main.go -rollback -envfile=${envfile}
 
 build:
@@ -79,7 +79,6 @@ dockerenter-img:
 dc-check:
 	 docker compose -f docker-compose-app.yaml config
 	 
-
 push-image: dockerbuild
 	docker push ${registry}/${username}/${image}:${tags}
 
@@ -95,4 +94,4 @@ entermysql:
 
 
 test:
-	go test -run=TestUsers ./internal/delivery/http -v -count 1
+	go test -run=TestHandlerUsers ./internal/delivery/http/handler -v -count 1

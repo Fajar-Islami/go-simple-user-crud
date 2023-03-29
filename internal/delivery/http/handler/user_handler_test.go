@@ -12,7 +12,7 @@ import (
 	"github.com/go-playground/assert/v2"
 )
 
-func TestUsersGet(t *testing.T) {
+func TestHandlerUsersGet(t *testing.T) {
 	e := HelperRouterUser(t)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/user?page=1&limit=1", nil)
