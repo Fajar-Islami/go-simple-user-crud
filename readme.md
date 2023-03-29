@@ -7,6 +7,12 @@
 6. Jalankan docker compose aplikasi dengan `make dockerup`
 7. Untuk menghentikannya gunakan `make dockerstop`
 
+# How to running integrations test
+1. Pastikan isi `.env.test` sama dengan di `docker-compose.yaml`
+2. Jalankan perintah `docker compose up -d`
+3. Lakukan migration `make migrate-up envfile=.env.test`
+4. Jalankan test dengan `make test`
+
 # TODO
 [X] CRUD User   
 [X] Get Detail Save and Get From redis   
@@ -16,6 +22,6 @@
 [X] Add Github Action   
 [X] Auto Deploy with GA   
 [ ] Migrate from redis to groupcache   
-[X] Migrate from viper to godotenv
+[X] Migrate from viper to godotenv   
 [X] API HealthCheck   
 [X] Fix swagger port, change host to different with normal host
