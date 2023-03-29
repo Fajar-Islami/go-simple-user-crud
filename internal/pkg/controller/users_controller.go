@@ -144,13 +144,13 @@ func (ohco *usersControllerImpl) UpdateUsersByID(ctx echo.Context) error {
 	userid := ctx.Param("userid")
 	usersIdInt, errConv := strconv.Atoi(userid)
 	if errConv != nil {
-		return helper.BuildResponse(ctx, false, helper.FAILEDGETDATA, errConv.Error(), nil, http.StatusBadRequest)
+		return helper.BuildResponse(ctx, false, helper.FAILEDUPDATEDATA, errConv.Error(), nil, http.StatusBadRequest)
 	}
 
 	params := new(dtos.ReqUpdateDataUser)
 	if err := ctx.Bind(params); err != nil {
 		log.Println(err)
-		return helper.BuildResponse(ctx, false, helper.FAILEDPOSTDATA, err.Error(), nil, http.StatusBadRequest)
+		return helper.BuildResponse(ctx, false, helper.FAILEDUPDATEDATA, err.Error(), nil, http.StatusBadRequest)
 	}
 
 	res, err := ohco.usersusecase.UpdateUsersByID(ctx, usersIdInt, *params)

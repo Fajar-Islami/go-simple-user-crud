@@ -94,4 +94,4 @@ entermysql:
 
 
 test:
-	go test -run=TestHandlerUsers ./internal/delivery/http/handler -v -count 1
+	go test -run=TestHandlerUsersDelete ./internal/delivery/http/handler -v -count 1
