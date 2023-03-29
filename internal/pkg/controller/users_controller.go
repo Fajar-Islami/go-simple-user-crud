@@ -158,7 +158,7 @@ func (ohco *usersControllerImpl) UpdateUsersByID(ctx echo.Context) error {
 		return helper.BuildResponse(ctx, false, helper.FAILEDUPDATEDATA, err.Err.Error(), nil, err.Code)
 	}
 
-	return helper.BuildResponse(ctx, true, helper.SUCCEEDUPDATEDATA, "", res, http.StatusNoContent)
+	return helper.BuildResponse(ctx, true, helper.SUCCEEDUPDATEDATA, "", res, http.StatusOK)
 }
 
 // @Tags Users
@@ -183,5 +183,5 @@ func (ohco *usersControllerImpl) DeleteUsersByID(ctx echo.Context) error {
 		return helper.BuildResponse(ctx, false, helper.FAILEDDELETEDATA, err.Err.Error(), nil, err.Code)
 	}
 
-	return helper.BuildResponse(ctx, true, helper.SUCCEEDUPDATEDATA, "", res, http.StatusNoContent)
+	return helper.BuildResponse(ctx, true, helper.SUCCEEDDELETEDATA, "", res, http.StatusOK)
 }
